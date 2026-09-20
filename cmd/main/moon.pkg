@@ -1,0 +1,5 @@
+// import {
+//   "chgttyyr/moon_dns" @lib,
+// }
+
+pkgtype(kind: "executable")

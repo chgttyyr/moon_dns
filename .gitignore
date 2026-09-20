@@ -1,0 +1,6 @@
+_build
+target
+.mooncaches
+*.log
+*.exe
+.DS_Store
