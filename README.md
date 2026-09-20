@@ -1,10 +1,5 @@
 # MoonDNS (`chgttyyr/moon_dns`)
 
-[![MoonBit Version](https://img.shields.io/badge/MoonBit-0.1.20260915-purple.svg)](https://www.moonbitlang.com/)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Tests](https://img.shields.io/badge/tests-8%20suites%20passing-brightgreen.svg)]()
-
 > **MoonDNS** 是使用 **100% 纯 MoonBit（Zero-FFI）** 从零实现的权威域名服务器（Authoritative DNS Server），严格遵循 RFC 1035 与 RFC 6891 (EDNS0) 规范，专为高安全性、确定性与云原生 / WebAssembly 边缘计算环境设计。
 
 本项目由开发者 **`chgttyyr`** 进行**独立开源设计与开发**。
@@ -30,19 +25,13 @@
 
 在 MoonBit 生态中，此前已有客户端解析存根（`moon-dns-stub`）与配置文件静态审计工具（`moonbit-dns-zone`），但**始终缺少核心的权威服务端实现**。
 
-```
-+-------------------------------------------------------------+
-|                      MoonBit DNS 协议生态                     |
-+-------------------------------------------------------------+
-|  客户端查询 (Client Stub)    |  配置语法分析 (Zone Parser)   |
-|  - jinshengmeng46/moon-dns-stub | - lmclmc1/moonbit-dns-zone  |
-+-------------------------------------------------------------+
-|        ★★★ 服务端基石：权威 DNS 服务器 (Authoritative Server) ★★★      |
-|               -> chgttyyr/moon_dns (本项目补齐)                |
-+-------------------------------------------------------------+
-```
+| 生态分层 | 现有开源组件 | 功能职责 |
+| :--- | :--- | :--- |
+| **客户端查询** | `jinshengmeng46/moon-dns-stub` | 基础客户端 Stub 递归解析 |
+| **配置语法审计** | `lmclmc1/moonbit-dns-zone` | Master-file 语法静态检查 |
+| **权威服务端基石** | **`chgttyyr/moon_dns` (本项目)** | **完整权威解析、防线安全机与全套 Wire 编解码** |
 
-**MoonDNS 补齐了 MoonBit 在域名基础设施上的最后一块拼图**，使 MoonBit 首次具备独立托管域名解析、响应公网或局域网 DNS 请求的能力。
+**MoonDNS 补齐了 MoonBit 在域名基础设施上的关键服务端空白**，使 MoonBit 具备独立托管权威解析、响应公网或局域网 DNS 请求的能力。
 
 ---
 
