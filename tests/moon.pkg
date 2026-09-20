@@ -1,0 +1,11 @@
+import {
+  "chgttyyr/moon_dns/src/types" @types,
+  "chgttyyr/moon_dns/src/bytes_io" @bytes_io,
+  "chgttyyr/moon_dns/src/domain" @domain,
+  "chgttyyr/moon_dns/src/records" @records,
+  "chgttyyr/moon_dns/src/compression" @compression,
+  "chgttyyr/moon_dns/src/codec" @codec,
+  "chgttyyr/moon_dns/src/zone" @zone,
+  "chgttyyr/moon_dns/src/resolver" @resolver,
+  "chgttyyr/moon_dns/src/transport" @transport,
+}
