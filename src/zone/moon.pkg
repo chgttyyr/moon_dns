@@ -1,0 +1,4 @@
+import {
+  "chgttyyr/moon_dns/src/types" @types,
+  "chgttyyr/moon_dns/src/domain" @domain,
+}
