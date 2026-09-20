@@ -1,0 +1,6 @@
+import {
+  "chgttyyr/moon_dns/src/types" @types,
+  "chgttyyr/moon_dns/src/codec" @codec,
+  "chgttyyr/moon_dns/src/zone" @zone,
+  "chgttyyr/moon_dns/src/transport" @transport,
+}
