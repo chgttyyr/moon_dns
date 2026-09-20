@@ -6,7 +6,7 @@
 
 ---
 
-## 🌟 核心特性 (Key Features)
+## 核心特性 (Key Features)
 
 - **纯正原生的系统级实现 (100% Zero-FFI)**：全套协议解析、数据结构、权威语义与网络抽象全部使用 MoonBit 编写，绝无任何 C/JS 外部绑定，彻底免除 C 语言体系常见的野指针、缓冲区溢出风险。
 - **工业级恶意指针防御 (Robust Pointer Guards)**：内建四重防御状态机，坚决抵御针对 DNS 压缩指针的经典 DoS 攻击（自环指针、双向交叉环、前向越界偏移、深度跳跃链）。处理任何畸形报文绝对**零 Panic、零死循环**。
@@ -21,7 +21,7 @@
 
 ---
 
-## 🧩 生态定位与价值 (Ecosystem Positioning)
+## 生态定位与价值 (Ecosystem Positioning)
 
 在 MoonBit 生态中，此前已有客户端解析存根（`moon-dns-stub`）与配置文件静态审计工具（`moonbit-dns-zone`），但**始终缺少核心的权威服务端实现**。
 
@@ -35,7 +35,7 @@
 
 ---
 
-## 🚀 快速开始 (Quick Start)
+## 快速开始 (Quick Start)
 
 ### 1. 环境依赖
 * [MoonBit 工具链](https://www.moonbitlang.com/download/) (v0.1.20260915 或更高版本)
@@ -64,7 +64,7 @@ moon run cmd/main -- query -s 127.0.0.1 -p 5353 www.example.com A
 
 ---
 
-## 🏛️ 项目架构 (Architecture)
+## 项目架构 (Architecture)
 
 ```
 src/
@@ -81,7 +81,7 @@ src/
 
 ---
 
-## 🛡️ 安全防御体系 (Security Model)
+## 安全防御体系 (Security Model)
 
 DNS 协议最危险的脆弱点在于恶意的压缩指针（Compression Pointer Loops）。MoonDNS 在解码层部署了多重防御：
 1. **环路访问集合 (Visited Offset Tracker)**：记录解包过程中所有已跳转的偏移量，遇到重复跳转立即拦截。
@@ -91,7 +91,7 @@ DNS 协议最危险的脆弱点在于恶意的压缩指针（Compression Pointer
 
 ---
 
-## 📜 许可证 (License)
+## 许可证 (License)
 
 本项目采用 [Apache-2.0](LICENSE) 许可证开源。
 所有代码均为作者 **`chgttyyr`** 原创实现，无任何外部专有代码借用。
