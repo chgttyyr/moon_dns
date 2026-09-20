@@ -14,7 +14,7 @@ pub(all) enum LookupResult {
 
 ///| Zone database holding records for an authoritative apex origin
 pub(all) struct Zone {
-  origin : String
+  mut origin : String
   mut default_ttl : UInt
   mut soa : Option[@types.Record]
   records : Array[@types.Record]
