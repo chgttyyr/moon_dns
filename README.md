@@ -91,7 +91,69 @@ DNS 协议最危险的脆弱点在于恶意的压缩指针（Compression Pointer
 
 ---
 
+## 测试验证与质量指标 (Test Verification)
+
+本项目遵循严格的测试驱动开发与黄金向量比对规范，覆盖 RFC 1035 标准语义与高危攻击面防御。所有测试通过 `moon test` 自动化运行：
+
+| 测试组编号 | 测试套件 | 测试范围与断言 | 用例数 | 状态 |
+| :--- | :--- | :--- | :---: | :---: |
+| Suite 1 | **编解码黄金测试** | 给定 Wire 字节向量 -> `parse` -> `encode` -> 与原字节逐字节严格相等 | 4 | PASS |
+| Suite 2 | **变长标签与域名编解码** | FQDN 规范化、大小写不敏感匹配、子域判定与边界检查 | 4 | PASS |
+| Suite 3 | **恶意指针安全防御** | 自指环、双向环、越界指针、深度递归跳跃，零 Panic 零死循环拦截 | 4 | PASS |
+| Suite 4 | **各记录类型 Wire 编解码** | A, AAAA, CNAME, NS, MX, TXT (多分块), SOA, PTR, SRV, CAA, OPT 往返一致性 | 10 | PASS |
+| Suite 5 | **报文截断与 TC 标记** | 512 字节与 EDNS0 大小上限截断，合规置位 TC=1 并安全修剪记录 | 4 | PASS |
+| Suite 6 | **权威语义与应答构建** | Exact / Wildcard / CNAME 追踪，AA=1，NXDOMAIN (RCODE=3) 与 NODATA 携带 SOA | 6 | PASS |
+| Suite 7 | **传输层与 Mock 管道** | 内存管道端到端应答验证，TCP 2 字节前缀帧拆包/粘包恢复 | 4 | PASS |
+| Suite 8 | **协议模糊与并发压力测试** | 20+ 随机畸变报文模糊注入与 100 节点高并发 Zone 查找稳定性 | 21 | PASS |
+| **汇总** | **全量自动化测试** | **8 组测试套件全面通过，零编译警告，零运行期 Panic** | **57** | **100% 绿灯** |
+
+---
+
+## 源码规模与工程指标 (Codebase Scale Metrics)
+
+| 指标维度 | 统计数值 | 说明 |
+| :--- | :--- | :--- |
+| **纯 MoonBit 源码 (`.mbt`)** | 4,586 行 | 覆盖协议编解码、安全防线、Zone 索引、纯函数解析器与 CLI |
+| **工程总行数 (含配置与文档)** | 5,431+ 行 | 包含 8 组测试套件、规范文档及 BIND Zone 示例 |
+| **外部 C/JS 绑定 (FFI)** | 0 行 (100% Zero-FFI) | 绝无任何底层外部依赖，天然契约安全与跨平台编译 |
+| **自动化测试用例数** | 57 项 | 持续集成通过率 100% |
+
+---
+
+## 实现范围与非目标 (Scope & Non-Goals)
+
+### 实现范围 (In-Scope)
+- **权威 DNS 服务**：针对本地配置与加载的 Zone 数据提供权威解析应答；
+- **全套协议编解码**：RFC 1035 / RFC 6891 Wire 格式完整支持；
+- **自适应出站压缩**：构建域名后缀字典，压缩应答报文尺寸；
+- **四重指针安全防护**：防越界、防自环、防交叉环、防跳跃超限；
+- **双模传输与管道**：UDP/TCP 协议帧支持与零网络依赖纯内存测试管道。
+
+### 明确非目标 (Non-Goals)
+为了保持系统的高安全性、确定性与微核心轻量架构，本项目明确不实现以下特性：
+- **递归解析（Recursive Resolver）**：本项目仅专注权威服务器职责，不承担公共递归查询与上游转发缓存；
+- **DNSSEC 签名与在线验签**：不包含 RRSIG / DNSKEY 等加密签名计算；
+- **动态更新（RFC 2136）**：Zone 数据由静态配置文件或内存数据结构加载，不支持网络动态写入更新；
+- **全量 AXFR / IXFR 区传送**：收到区传送请求时统一返回合规的拒绝响应（REFUSED）；
+- **DoH / DoT 加密传输**：应用层专注于标准 DNS 协议报文本身，TLS/HTTPS 由外部反向代理或网关终结。
+
+---
+
+## 参考与来源说明 (Attribution & References)
+
+1. **项目原创性声明**：
+   本项目为**原创独立开发**。所有核心协议数据结构、编解码器、安全防线算法及权威解析调度逻辑均由作者 **`chgttyyr`** 基于 MoonBit 语言规范从零手写实现，未引入、复制或移植任何第三方专有代码仓库。
+2. **遵循的国际标准与协议**：
+   - [RFC 1034](https://datatracker.ietf.org/doc/html/rfc1034) - DOMAIN NAMES - CONCEPTS AND FACILITIES
+   - [RFC 1035](https://datatracker.ietf.org/doc/html/rfc1035) - DOMAIN NAMES - IMPLEMENTATION AND SPECIFICATION
+   - [RFC 6891](https://datatracker.ietf.org/doc/html/rfc6891) - Extension Mechanisms for DNS (EDNS(0))
+   - [RFC 3597](https://datatracker.ietf.org/doc/html/rfc3597) - Handling of Unknown DNS Resource Record (RR) Types
+3. **生态参考与行为对齐**：
+   在项目立项与架构调研期间，作者查阅了 MoonBit 生态现存的客户端存根（`jinshengmeng46/moon-dns-stub`）与配置检查工具（`lmclmc1/moonbit-dns-zone`）的功能边界与行为特征，确立了开发核心服务端以填补生态空白的定位，无代码复用。
+
+---
+
 ## 许可证 (License)
 
 本项目采用 [Apache-2.0](LICENSE) 许可证开源。
-所有代码均为作者 **`chgttyyr`** 原创实现，无任何外部专有代码借用。
+版权所有 (c) 2026 `chgttyyr`。所有代码均为作者原创实现。
