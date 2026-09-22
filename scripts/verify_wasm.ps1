@@ -30,7 +30,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "[FAIL] moon test --target wasm failed!" -ForegroundColor Red
     exit 1
 }
-Write-Host "[PASS] All 57 tests passed on WebAssembly target." -ForegroundColor Green
+Write-Host "[PASS] All 58 tests passed on WebAssembly target." -ForegroundColor Green
 
 # 4. Test on Wasm-GC target
 Write-Host "`n[Step 4/5] Running automated tests on Wasm-GC target: moon test --target wasm-gc..." -ForegroundColor Yellow
@@ -39,7 +39,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "[FAIL] moon test --target wasm-gc failed!" -ForegroundColor Red
     exit 1
 }
-Write-Host "[PASS] All 57 tests passed on WebAssembly-GC target." -ForegroundColor Green
+Write-Host "[PASS] All 58 tests passed on WebAssembly-GC target." -ForegroundColor Green
 
 # 5. Execute Node.js WASI sandbox runner
 Write-Host "`n[Step 5/5] Executing Node.js WASI runtime verification..." -ForegroundColor Yellow

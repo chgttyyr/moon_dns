@@ -1,0 +1,64 @@
+name: "Continuous Integration"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-and-verify:
+    name: "Build, Test & Wasm Verification"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install MoonBit Toolchain
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Check MoonBit Version
+        run: |
+          moon version --all
+
+      - name: MoonBit Type Check (moon check)
+        run: |
+          moon check
+
+      - name: Native Automated Tests (moon test)
+        run: |
+          moon test
+
+      - name: WebAssembly Tests (moon test --target wasm)
+        run: |
+          moon test --target wasm
+
+      - name: WebAssembly-GC Tests (moon test --target wasm-gc)
+        run: |
+          moon test --target wasm-gc
+
+      - name: JavaScript Target Tests (moon test --target js)
+        run: |
+          moon test --target js
+
+      - name: Build WebAssembly Binary
+        run: |
+          moon build --target wasm
+
+      - name: Run Node.js WASI End-to-End Verification
+        run: |
+          node scripts/verify_wasm.js

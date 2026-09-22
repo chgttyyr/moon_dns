@@ -136,9 +136,9 @@ DNS 协议最危险的脆弱点在于恶意的压缩指针（Compression Pointer
 | Suite 4 | **各记录类型 Wire 编解码** | A, AAAA, CNAME, NS, MX, TXT (多分块), SOA, PTR, SRV, CAA, OPT 往返一致性 | 10 | PASS |
 | Suite 5 | **报文截断与 TC 标记** | 512 字节与 EDNS0 大小上限截断，合规置位 TC=1 并安全修剪记录 | 4 | PASS |
 | Suite 6 | **权威语义与应答构建** | Exact / Wildcard / CNAME 追踪，AA=1，NXDOMAIN (RCODE=3) 与 NODATA 携带 SOA | 6 | PASS |
-| Suite 7 | **传输层与 Mock 管道** | 内存管道端到端应答验证，TCP 2 字节前缀帧拆包/粘包恢复 | 4 | PASS |
+| Suite 7 | **传输层与 Mock 管道** | 内存管道端到端应答验证，TCP 2 字节前缀帧拆包/粘包恢复，Hex 报文编解码 | 5 | PASS |
 | Suite 8 | **协议模糊与并发压力测试** | 20+ 随机畸变报文模糊注入与 100 节点高并发 Zone 查找稳定性 | 21 | PASS |
-| **汇总** | **全量自动化测试** | **8 组测试套件全面通过，零编译警告，零运行期 Panic** | **57** | **100% 绿灯** |
+| **汇总** | **全量自动化测试** | **8 组测试套件全面通过，零编译警告，零运行期 Panic** | **58** | **100% 绿灯** |
 
 ---
 
@@ -171,19 +171,19 @@ DNS 协议最危险的脆弱点在于恶意的压缩指针（Compression Pointer
 
 ### 2. 多目标自动化测试通过矩阵 (Multi-Target Verification)
 
-MoonDNS 在所有主流编译目标（原生、WebAssembly、WebAssembly-GC 及 JavaScript）下均保证全量 57 项自动化测试 **100% 绿灯通过**：
+MoonDNS 在所有主流编译目标（原生、WebAssembly、WebAssembly-GC 及 JavaScript）下均保证全量 58 项自动化测试 **100% 绿灯通过**：
 
 | 编译目标命令 | 目标类型 | 测试用例数 | 通过率 | 运行环境 |
 | :--- | :--- | :---: | :---: | :--- |
-| `moon test` | Native 平台 | 57 / 57 | **100% PASS** | 本地工具链引擎 |
-| `moon test --target wasm` | WebAssembly (MVP) | 57 / 57 | **100% PASS** | Wasm 嵌入式沙箱 |
-| `moon test --target wasm-gc` | WebAssembly-GC | 57 / 57 | **100% PASS** | Wasm-GC 虚拟机 |
-| `moon test --target js` | JavaScript (ES6) | 57 / 57 | **100% PASS** | V8 / Node.js 运行时 |
+| `moon test` | Native 平台 | 58 / 58 | **100% PASS** | 本地工具链引擎 |
+| `moon test --target wasm` | WebAssembly (MVP) | 58 / 58 | **100% PASS** | Wasm 嵌入式沙箱 |
+| `moon test --target wasm-gc` | WebAssembly-GC | 58 / 58 | **100% PASS** | Wasm-GC 虚拟机 |
+| `moon test --target js` | JavaScript (ES6) | 58 / 58 | **100% PASS** | V8 / Node.js 运行时 |
 
 ### 3. Wasm 编译产物与轻量化数据
 - **编译命令**：`moon build --target wasm`
 - **产物文件**：`_build/wasm/debug/build/cmd/main/main.wasm`
-- **产物体积**：**160.72 KB**（164,579 bytes），相比同类 Go 语言实现的 CoreDNS 镜像（数十 MB）轻量超过 98%；
+- **产物体积**：**161.61 KB**（165,489 bytes），相比同类 Go 语言实现的 CoreDNS 镜像（数十 MB）轻量超过 98%；
 - **依赖接口**：仅引入标准 `wasi_snapshot_preview1.fd_write`（用于日志打印），**0 外部专有 C/JS FFI 依赖**。
 
 ### 4. Node.js WASI 宿主环境独立运行实证
@@ -198,7 +198,7 @@ node scripts/verify_wasm.js
 ```text
 [1/3] Wasm Binary Inspection:
   Path: _build/wasm/debug/build/cmd/main/main.wasm
-  Size: 164579 bytes (~160.72 KB)
+  Size: 165489 bytes (~161.61 KB)
   Architecture: wasm32-unknown-wasi
 
 [2/3] Instantiating WebAssembly Sandbox with Node.js WASI...
@@ -206,17 +206,19 @@ node scripts/verify_wasm.js
   Import dependencies: only [wasi_snapshot_preview1.fd_write] (100% Zero external C/JS FFI)
 
 [3/3] Executing MoonDNS Authoritative Pipeline in Wasm Sandbox:
-  [1/4] Bootstrapping In-Memory Zone Database for 'example.com.'... -> Loaded 6 records
-  [2/4] Testing Standard Authoritative Queries...
+  [1/5] Bootstrapping In-Memory Zone Database for 'example.com.'... -> Loaded 6 records
+  [2/5] Testing Standard Authoritative Queries...
     [QUERY] www.example.com. A -> RCODE=0, AA=true -> 93.184.216.34
     [QUERY] blog.example.com. A -> Chased 2 records (CNAME + Target)
     [QUERY] test.dev.example.com. A -> Wildcard Match: 127.0.0.1
-  [3/4] Testing RFC Semantics (NODATA & NXDOMAIN)...
+  [3/5] Testing RFC Semantics (NODATA & NXDOMAIN)...
     [NODATA] RCODE=0, Answers=0, Authority=SOA
     [NXDOMAIN] RCODE=3 (Name Error), Authority=example.com.
-  [4/4] Security Testing: Malicious Pointer Attacks Injection...
+  [4/5] Security Testing: Malicious Pointer Attacks Injection...
     [SUCCESS] Defense Layer Active: Intercepted attack safely (Pointer target 12 points to self)
     Server health status: 100% ALIVE, zero panic, zero infinite loop!
+  [5/5] Performance Microbenchmark (10,000 queries in-memory stress)...
+    [BENCHMARK] Processed 10,000 queries in-memory: 10000/10000 success (100% throughput, zero memory leak)
 
 [VERIFICATION RESULT]
   Exit Code: 0
@@ -236,10 +238,10 @@ powershell -ExecutionPolicy Bypass -File scripts/verify_wasm.ps1
 
 | 指标维度 | 统计数值 | 说明 |
 | :--- | :--- | :--- |
-| **纯 MoonBit 源码 (`.mbt`)** | 4,586 行 | 覆盖协议编解码、安全防线、Zone 索引、纯函数解析器与 CLI |
-| **工程总行数 (含配置与文档)** | 5,431+ 行 | 包含 8 组测试套件、规范文档及 BIND Zone 示例 |
+| **纯 MoonBit 源码 (`.mbt`)** | 4,668 行 | 覆盖协议编解码、安全防线、Zone 索引、纯函数解析器与 CLI |
+| **工程总行数 (含配置与文档)** | 5,900+ 行 | 包含 8 组测试套件、CI 流水线、规范文档及示例 |
 | **外部 C/JS 绑定 (FFI)** | 0 行 (100% Zero-FFI) | 绝无任何底层外部依赖，天然契约安全与跨平台编译 |
-| **自动化测试用例数** | 57 项 | 持续集成通过率 100% |
+| **自动化测试用例数** | 58 项 | 持续集成通过率 100% |
 
 ---
 
