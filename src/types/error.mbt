@@ -2,7 +2,8 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| DnsError represents all protocol, parsing, and serialization error variants.
+///|
+/// DnsError represents all protocol, parsing, and serialization error variants.
 pub(all) enum DnsError {
   BufferUnderflow(String)
   BufferOverflow(String)
@@ -15,7 +16,8 @@ pub(all) enum DnsError {
   IoError(String)
 } derive(Debug, Eq)
 
-///| Returns a human-readable description of the DNS error.
+///|
+/// Returns a human-readable description of the DNS error.
 pub fn DnsError::message(self : DnsError) -> String {
   match self {
     BufferUnderflow(msg) => "Buffer underflow: " + msg

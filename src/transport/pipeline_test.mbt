@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "mock memory pipeline end-to-end query" {
   let zone = @zone.Zone::new("example.com.", 300)
   let rec_a = @types.Record::new(
@@ -9,12 +10,21 @@ test "mock memory pipeline end-to-end query" {
     @types.RType::A,
     @types.RClass::IN,
     60,
-    @types.RData::A((10).to_byte(), (20).to_byte(), (30).to_byte(), (40).to_byte())
+    @types.RData::A(
+      (10).to_byte(),
+      (20).to_byte(),
+      (30).to_byte(),
+      (40).to_byte(),
+    ),
   )
   zone.add_record(rec_a)
 
   // Construct binary query request
-  let query = @types.Message::new_query(0xcafe, "api.example.com.", @types.RType::A)
+  let query = @types.Message::new_query(
+    0xcafe,
+    "api.example.com.",
+    @types.RType::A,
+  )
   let query_bytes = @codec.encode_message(query)
 
   // Feed into zero-I/O pipeline
@@ -47,8 +57,14 @@ test "mock memory pipeline end-to-end query" {
   }
 }
 
+///|
 test "tcp framing encode and decode" {
-  let payload = Bytes::from_array([(1).to_byte(), (2).to_byte(), (3).to_byte(), (4).to_byte()])
+  let payload = Bytes::from_array([
+    (1).to_byte(),
+    (2).to_byte(),
+    (3).to_byte(),
+    (4).to_byte(),
+  ])
   let frame = encode_tcp_frame(payload)
   // 2 bytes length prefix (0x0004) + 4 bytes = 6 bytes
   assert_eq(frame.length(), 6)
@@ -66,6 +82,7 @@ test "tcp framing encode and decode" {
   }
 }
 
+///|
 test "mock pipeline malformed input error recording" {
   let zone = @zone.Zone::new("example.com.", 300)
   let server = DnsServer::new(zone)

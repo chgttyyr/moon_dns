@@ -2,8 +2,9 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Find any EDNS0 OPT pseudo-record in a message's additional section
-pub fn find_opt_record(msg : @types.Message) -> Option[@records.OptRecord] {
+///|
+/// Find any EDNS0 OPT pseudo-record in a message's additional section
+pub fn find_opt_record(msg : @types.Message) -> @records.OptRecord? {
   for i = 0; i < msg.additionals.length(); i = i + 1 {
     let rec = msg.additionals[i]
     if rec.rtype == @types.RType::OPT {
@@ -23,10 +24,11 @@ pub fn find_opt_record(msg : @types.Message) -> Option[@records.OptRecord] {
   None
 }
 
-///| Pure-function Authoritative Response Builder (RFC 1034 / RFC 1035 / RFC 2181 / RFC 6891)
+///|
+/// Pure-function Authoritative Response Builder (RFC 1034 / RFC 1035 / RFC 2181 / RFC 6891)
 pub fn build_response(
   query : @types.Message,
-  zone : @zone.Zone
+  zone : @zone.Zone,
 ) -> @types.Message {
   // Step 1: Format check
   if query.questions.length() == 0 {
@@ -99,23 +101,23 @@ pub fn build_response(
   resp
 }
 
-///| Chase CNAME aliases internally within the zone up to max_depth
+///|
+/// Chase CNAME aliases internally within the zone up to max_depth
 fn chase_cname(
   resp : @types.Message,
   zone : @zone.Zone,
   target : String,
   target_qtype : @types.RType,
-  depth : Int
+  depth : Int,
 ) -> Unit {
   if depth <= 0 {
     return
   }
   match zone.lookup(target, target_qtype) {
-    @zone.LookupResult::ExactMatch(recs) => {
+    @zone.LookupResult::ExactMatch(recs) =>
       for i = 0; i < recs.length(); i = i + 1 {
         resp.add_answer(recs[i])
       }
-    }
     @zone.LookupResult::CNameMatch(next_cname, next_target) => {
       resp.add_answer(next_cname)
       chase_cname(resp, zone, next_target, target_qtype, depth - 1)
@@ -124,29 +126,25 @@ fn chase_cname(
   }
 }
 
-///| Add glue IP records to the additional section for NS or MX target servers in zone
-fn append_glue_records(
-  resp : @types.Message,
-  zone : @zone.Zone
-) -> Unit {
+///|
+/// Add glue IP records to the additional section for NS or MX target servers in zone
+fn append_glue_records(resp : @types.Message, zone : @zone.Zone) -> Unit {
   for i = 0; i < resp.answers.length(); i = i + 1 {
     let rec = resp.answers[i]
-    let server_name : Option[String] = match rec.rdata {
+    let server_name : String? = match rec.rdata {
       @types.RData::NS(name) => Some(name)
       @types.RData::MX(_, exch) => Some(exch)
       _ => None
     }
     match server_name {
-      Some(name) => {
+      Some(name) =>
         match zone.lookup(name, @types.RType::A) {
-          @zone.LookupResult::ExactMatch(glue_a) => {
+          @zone.LookupResult::ExactMatch(glue_a) =>
             for j = 0; j < glue_a.length(); j = j + 1 {
               resp.add_additional(glue_a[j])
             }
-          }
           _ => ()
         }
-      }
       None => ()
     }
   }

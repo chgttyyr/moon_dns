@@ -2,8 +2,13 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "response truncation at 512 bytes limit" {
-  let query = @types.Message::new_query(0x9999, "large.example.com.", @types.RType::TXT)
+  let query = @types.Message::new_query(
+    0x9999,
+    "large.example.com.",
+    @types.RType::TXT,
+  )
   let resp = @types.Message::new_response(query, true, @types.RCode::NoError)
 
   // Add 10 large TXT records, each ~100 bytes, causing the response to exceed 1000 bytes
@@ -14,8 +19,9 @@ test "response truncation at 512 bytes limit" {
       @types.RClass::IN,
       300,
       @types.RData::TXT([
-        "This is an intentionally oversized DNS TXT payload designed to exceed 512 bytes threshold #" + i.to_string()
-      ])
+        "This is an intentionally oversized DNS TXT payload designed to exceed 512 bytes threshold #" +
+        i.to_string(),
+      ]),
     )
     resp.add_answer(rec)
   }
@@ -37,8 +43,13 @@ test "response truncation at 512 bytes limit" {
   }
 }
 
+///|
 test "no truncation when buffer limit is large (e.g. EDNS0 4096)" {
-  let query = @types.Message::new_query(0x8888, "bulk.example.com.", @types.RType::A)
+  let query = @types.Message::new_query(
+    0x8888,
+    "bulk.example.com.",
+    @types.RType::A,
+  )
   let resp = @types.Message::new_response(query, true, @types.RCode::NoError)
 
   for i = 0; i < 20; i = i + 1 {
@@ -47,7 +58,7 @@ test "no truncation when buffer limit is large (e.g. EDNS0 4096)" {
       @types.RType::A,
       @types.RClass::IN,
       300,
-      @types.RData::A((10).to_byte(), (0).to_byte(), (0).to_byte(), i.to_byte())
+      @types.RData::A((10).to_byte(), (0).to_byte(), (0).to_byte(), i.to_byte()),
     )
     resp.add_answer(rec)
   }

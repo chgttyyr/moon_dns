@@ -2,7 +2,8 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Convert an ASCII code point to lowercase
+///|
+/// Convert an ASCII code point to lowercase
 pub fn code_to_lower(code : Int) -> Int {
   if code >= 65 && code <= 90 {
     code + 32
@@ -11,7 +12,8 @@ pub fn code_to_lower(code : Int) -> Int {
   }
 }
 
-///| Normalize a domain string into a standard FQDN ending with a trailing dot
+///|
+/// Normalize a domain string into a standard FQDN ending with a trailing dot
 pub fn normalize_fqdn(raw : String) -> String {
   let trimmed = raw.trim().to_owned()
   if trimmed.length() == 0 || trimmed == "." {
@@ -24,7 +26,8 @@ pub fn normalize_fqdn(raw : String) -> String {
   }
 }
 
-///| Compare two domain names case-insensitively according to RFC 1035 rules
+///|
+/// Compare two domain names case-insensitively according to RFC 1035 rules
 pub fn domain_equal(a : String, b : String) -> Bool {
   let na = normalize_fqdn(a)
   let nb = normalize_fqdn(b)
@@ -41,7 +44,8 @@ pub fn domain_equal(a : String, b : String) -> Bool {
   true
 }
 
-///| Split a domain name into its individual label components (without dots)
+///|
+/// Split a domain name into its individual label components (without dots)
 pub fn split_labels(domain : String) -> Array[String] {
   let norm = normalize_fqdn(domain)
   if norm == "." {
@@ -64,7 +68,8 @@ pub fn split_labels(domain : String) -> Array[String] {
   result
 }
 
-///| Check if candidate is a subdomain of (or equal to) parent domain
+///|
+/// Check if candidate is a subdomain of (or equal to) parent domain
 pub fn is_subdomain_of(candidate : String, parent : String) -> Bool {
   let cand_labels = split_labels(candidate)
   let parent_labels = split_labels(parent)
@@ -82,10 +87,11 @@ pub fn is_subdomain_of(candidate : String, parent : String) -> Bool {
   true
 }
 
-///| Encode a domain into length-prefixed uncompressed wire format labels
+///|
+/// Encode a domain into length-prefixed uncompressed wire format labels
 pub fn encode_domain_labels(
   writer : @bytes_io.ByteWriter,
-  domain : String
+  domain : String,
 ) -> Result[Unit, @types.DnsError] {
   let norm = normalize_fqdn(domain)
   if norm == "." {
@@ -97,7 +103,9 @@ pub fn encode_domain_labels(
     let label = labels[i]
     let len = label.length()
     if len == 0 {
-      return Err(@types.MalformedLabel("Empty label detected in domain: " + domain))
+      return Err(
+        @types.MalformedLabel("Empty label detected in domain: " + domain),
+      )
     }
     if len > 63 {
       return Err(@types.MalformedLabel("Label exceeds 63 octets: " + label))
@@ -113,9 +121,10 @@ pub fn encode_domain_labels(
   Ok(())
 }
 
-///| Decode length-prefixed uncompressed wire format labels into an FQDN string
+///|
+/// Decode length-prefixed uncompressed wire format labels into an FQDN string
 pub fn decode_domain_labels(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[String, @types.DnsError] {
   let buf = StringBuilder()
   let mut is_first = true
@@ -137,10 +146,16 @@ pub fn decode_domain_labels(
     }
     // Check if compression pointer bits (11) are set
     if (len & 0xc0) != 0 {
-      return Err(@types.MalformedLabel("Encountered compression pointer in uncompressed reader"))
+      return Err(
+        @types.MalformedLabel(
+          "Encountered compression pointer in uncompressed reader",
+        ),
+      )
     }
     if len > 63 {
-      return Err(@types.MalformedLabel("Label length exceeds 63: " + len.to_string()))
+      return Err(
+        @types.MalformedLabel("Label length exceeds 63: " + len.to_string()),
+      )
     }
     total_octets = total_octets + len + 1
     if total_octets > 255 {

@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/bytes_io"
+
+import {
+  "chgttyyr/moon_dns/src/types",
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct ByteReader {
+  bytes : Bytes
+  mut cursor : Int
+} derive(@debug.Debug)
+pub fn ByteReader::from_offset(Bytes, Int) -> Result[Self, @types.DnsError]
+pub fn ByteReader::has_remaining(Self, Int) -> Bool
+pub fn ByteReader::new(Bytes) -> Self
+pub fn ByteReader::peek_byte(Self) -> Result[Byte, @types.DnsError]
+pub fn ByteReader::position(Self) -> Int
+pub fn ByteReader::read_byte(Self) -> Result[Byte, @types.DnsError]
+pub fn ByteReader::read_bytes(Self, Int) -> Result[Bytes, @types.DnsError]
+pub fn ByteReader::read_uint16(Self) -> Result[UInt16, @types.DnsError]
+pub fn ByteReader::read_uint32(Self) -> Result[UInt, @types.DnsError]
+pub fn ByteReader::remaining(Self) -> Int
+pub fn ByteReader::set_position(Self, Int) -> Result[Unit, @types.DnsError]
+pub fn ByteReader::skip(Self, Int) -> Result[Unit, @types.DnsError]
+pub fn ByteReader::sub_slice(Self, Int, Int) -> Result[Bytes, @types.DnsError]
+pub fn ByteReader::total_length(Self) -> Int
+
+pub(all) struct ByteWriter {
+  buf : Array[Byte]
+} derive(@debug.Debug)
+pub fn ByteWriter::clear(Self) -> Unit
+pub fn ByteWriter::length(Self) -> Int
+pub fn ByteWriter::new() -> Self
+pub fn ByteWriter::patch_uint16(Self, Int, UInt16) -> Result[Unit, @types.DnsError]
+pub fn ByteWriter::to_bytes(Self) -> Bytes
+pub fn ByteWriter::write_byte(Self, Byte) -> Unit
+pub fn ByteWriter::write_bytes(Self, Bytes) -> Unit
+pub fn ByteWriter::write_fixed_bytes(Self, FixedArray[Byte]) -> Unit
+pub fn ByteWriter::write_uint16(Self, UInt16) -> Unit
+pub fn ByteWriter::write_uint32(Self, UInt) -> Unit
+
+// Type aliases
+
+// Traits

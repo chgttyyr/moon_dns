@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "security fuzz: all malformed packet shapes must return Err safely" {
   let zone = @zone.Zone::new("test.net.", 300)
   let server = @transport.DnsServer::new(zone)
@@ -29,7 +30,7 @@ test "security fuzz: all malformed packet shapes must return Err safely" {
   let h_q = @types.Header::new_query(0x2345)
   @codec.encode_header(l_writer, h_q)
   l_writer.write_byte((60).to_byte()) // claims 60 bytes label
-  l_writer.write_byte(('a').to_int().to_byte()) // only provides 1 byte
+  l_writer.write_byte('a'.to_int().to_byte()) // only provides 1 byte
   let res_overflow_label = server.process_udp(l_writer.to_bytes())
   assert_true(res_overflow_label is Err(_))
 
@@ -52,6 +53,7 @@ test "security fuzz: all malformed packet shapes must return Err safely" {
   assert_true(res_oob is Err(_))
 }
 
+///|
 test "security fuzz: unsupported opcode and class behavior" {
   let zone = @zone.Zone::new("test.net.", 300)
 

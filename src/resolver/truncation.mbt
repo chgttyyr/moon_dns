@@ -2,11 +2,9 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Safely truncate a DNS response message to fit within max_size octets (RFC 1035 Section 4.1.1, RFC 6891)
-pub fn truncate_response(
-  resp : @types.Message,
-  max_size : Int
-) -> Bytes {
+///|
+/// Safely truncate a DNS response message to fit within max_size octets (RFC 1035 Section 4.1.1, RFC 6891)
+pub fn truncate_response(resp : @types.Message, max_size : Int) -> Bytes {
   let initial_bytes = @codec.encode_message(resp)
   if initial_bytes.length() <= max_size {
     return initial_bytes
@@ -16,7 +14,7 @@ pub fn truncate_response(
   resp.header.tc = true
 
   // Preserve OPT pseudo-record if present
-  let opt_rec : Option[@types.Record] = match find_opt_record(resp) {
+  let opt_rec : @types.Record? = match find_opt_record(resp) {
     Some(opt) => Some(opt.to_record())
     None => None
   }

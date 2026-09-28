@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/zone"
+
+import {
+  "chgttyyr/moon_dns/src/types",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn parse_zone_text(String, String) -> Result[Zone, @types.DnsError]
+
+// Errors
+
+// Types and methods
+pub(all) enum LookupResult {
+  ExactMatch(Array[@types.Record])
+  CNameMatch(@types.Record, String)
+  WildcardMatch(Array[@types.Record])
+  NoData(@types.Record)
+  NxDomain(@types.Record)
+  NotAuthoritative
+} derive(@debug.Debug)
+
+pub(all) struct Zone {
+  mut origin : String
+  mut default_ttl : UInt
+  mut soa : @types.Record?
+  records : Array[@types.Record]
+} derive(@debug.Debug)
+pub fn Zone::add_record(Self, @types.Record) -> Unit
+pub fn Zone::get_soa_or_fallback(Self) -> @types.Record
+pub fn Zone::lookup(Self, String, @types.RType) -> LookupResult
+pub fn Zone::new(String, UInt) -> Self
+pub fn Zone::record_count(Self) -> Int
+pub fn Zone::validate(Self) -> Array[String]
+
+// Type aliases
+
+// Traits

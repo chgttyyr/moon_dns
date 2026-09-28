@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "reader and writer uint16 roundtrip" {
   let writer = ByteWriter::new()
   writer.write_uint16(0x1234)
@@ -21,13 +22,15 @@ test "reader and writer uint16 roundtrip" {
   // Reading beyond buffer must return Err
   match reader.read_uint16() {
     Ok(_) => panic()
-    Err(e) => match e {
-      @types.BufferUnderflow(_) => ()
-      _ => panic()
-    }
+    Err(e) =>
+      match e {
+        @types.BufferUnderflow(_) => ()
+        _ => panic()
+      }
   }
 }
 
+///|
 test "reader and writer uint32 roundtrip" {
   let writer = ByteWriter::new()
   writer.write_uint32(0xdeadbeef)
@@ -46,6 +49,7 @@ test "reader and writer uint32 roundtrip" {
   }
 }
 
+///|
 test "writer patch uint16" {
   let writer = ByteWriter::new()
   writer.write_uint16(0x0000) // placeholder for count
@@ -66,6 +70,7 @@ test "writer patch uint16" {
   }
 }
 
+///|
 test "subslice and bounds safety" {
   let writer = ByteWriter::new()
   for i = 0; i < 10; i = i + 1 {

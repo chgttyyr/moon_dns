@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/domain"
+
+import {
+  "chgttyyr/moon_dns/src/bytes_io",
+  "chgttyyr/moon_dns/src/types",
+}
+
+// Values
+pub fn code_to_lower(Int) -> Int
+
+pub fn decode_domain_labels(@bytes_io.ByteReader) -> Result[String, @types.DnsError]
+
+pub fn domain_equal(String, String) -> Bool
+
+pub fn encode_domain_labels(@bytes_io.ByteWriter, String) -> Result[Unit, @types.DnsError]
+
+pub fn is_subdomain_of(String, String) -> Bool
+
+pub fn normalize_fqdn(String) -> String
+
+pub fn split_labels(String) -> Array[String]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

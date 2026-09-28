@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/compression"
+
+import {
+  "chgttyyr/moon_dns/src/bytes_io",
+  "chgttyyr/moon_dns/src/types",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub const MAX_POINTER_JUMPS : Int = 128
+
+pub fn decode_domain_compressed(@bytes_io.ByteReader) -> Result[String, @types.DnsError]
+
+pub fn encode_domain_compressed(@bytes_io.ByteWriter, CompressionMap, String) -> Result[Unit, @types.DnsError]
+
+// Errors
+
+// Types and methods
+pub(all) struct CompressionEntry {
+  domain : String
+  offset : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct CompressionMap {
+  entries : Array[CompressionEntry]
+} derive(@debug.Debug)
+pub fn CompressionMap::find(Self, String) -> Int?
+pub fn CompressionMap::insert(Self, String, Int) -> Unit
+pub fn CompressionMap::new() -> Self
+
+// Type aliases
+
+// Traits

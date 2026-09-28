@@ -1,5 +1,6 @@
 import {
-  "chgttyyr/moon_dns/src/types" @types,
-  "chgttyyr/moon_dns/src/domain" @domain,
-  "chgttyyr/moon_dns/src/records" @records,
+  "chgttyyr/moon_dns/src/types",
+  "chgttyyr/moon_dns/src/domain",
+  "chgttyyr/moon_dns/src/records",
+  "moonbitlang/core/encoding/utf8",
 }

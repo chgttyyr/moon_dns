@@ -2,24 +2,26 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| DNS Response Codes (RFC 1035 / RFC 6891)
+///|
+/// DNS Response Codes (RFC 1035 / RFC 6891)
 pub(all) enum RCode {
-  NoError   // 0: No error condition
-  FormErr   // 1: Format error in query
-  ServFail  // 2: Server failure
-  NXDomain  // 3: Non-existent domain (Name Error)
-  NotImp    // 4: Not implemented
-  Refused   // 5: Query refused by policy
-  YXDomain  // 6: Name exists when it should not (RFC 2136)
-  YXRRSet   // 7: RR set exists when it should not
-  NXRRSet   // 8: RR set that should exist does not
-  NotAuth   // 9: Server not authoritative for zone
-  NotZone   // 10: Name not contained in zone
-  BadVers   // 16: Bad EDNS version (RFC 6891)
+  NoError // 0: No error condition
+  FormErr // 1: Format error in query
+  ServFail // 2: Server failure
+  NXDomain // 3: Non-existent domain (Name Error)
+  NotImp // 4: Not implemented
+  Refused // 5: Query refused by policy
+  YXDomain // 6: Name exists when it should not (RFC 2136)
+  YXRRSet // 7: RR set exists when it should not
+  NXRRSet // 8: RR set that should exist does not
+  NotAuth // 9: Server not authoritative for zone
+  NotZone // 10: Name not contained in zone
+  BadVers // 16: Bad EDNS version (RFC 6891)
   Unknown(UInt16)
 } derive(Debug, Eq)
 
-///| Convert RCode to wire protocol integer
+///|
+/// Convert RCode to wire protocol integer
 pub fn RCode::to_wire(self : RCode) -> UInt16 {
   match self {
     NoError => 0
@@ -38,7 +40,8 @@ pub fn RCode::to_wire(self : RCode) -> UInt16 {
   }
 }
 
-///| Parse RCode from wire protocol integer
+///|
+/// Parse RCode from wire protocol integer
 pub fn RCode::from_wire(code : UInt16) -> RCode {
   match code {
     0 => NoError
@@ -57,17 +60,19 @@ pub fn RCode::from_wire(code : UInt16) -> RCode {
   }
 }
 
-///| DNS Operation Codes (RFC 1035)
+///|
+/// DNS Operation Codes (RFC 1035)
 pub(all) enum OpCode {
-  Query   // 0: Standard query
-  IQuery  // 1: Inverse query (obsolete)
-  Status  // 2: Server status request
-  Notify  // 4: Zone change notification (RFC 1996)
-  Update  // 5: Dynamic update (RFC 2136)
+  Query // 0: Standard query
+  IQuery // 1: Inverse query (obsolete)
+  Status // 2: Server status request
+  Notify // 4: Zone change notification (RFC 1996)
+  Update // 5: Dynamic update (RFC 2136)
   Unknown(Byte)
 } derive(Debug, Eq)
 
-///| Convert OpCode to wire protocol byte
+///|
+/// Convert OpCode to wire protocol byte
 pub fn OpCode::to_wire(self : OpCode) -> Byte {
   match self {
     Query => 0
@@ -79,7 +84,8 @@ pub fn OpCode::to_wire(self : OpCode) -> Byte {
   }
 }
 
-///| Parse OpCode from wire protocol byte
+///|
+/// Parse OpCode from wire protocol byte
 pub fn OpCode::from_wire(val : Byte) -> OpCode {
   match val.to_int() {
     0 => Query
@@ -91,24 +97,26 @@ pub fn OpCode::from_wire(val : Byte) -> OpCode {
   }
 }
 
-///| DNS Message Header (12 bytes fixed size, RFC 1035 Section 4.1.1)
+///|
+/// DNS Message Header (12 bytes fixed size, RFC 1035 Section 4.1.1)
 pub(all) struct Header {
-  mut id : UInt16       // 16-bit identifier assigned by query generator
-  mut qr : Bool         // Query (false) or Response (true)
-  mut opcode : OpCode   // 4-bit operation code
-  mut aa : Bool         // Authoritative Answer
-  mut tc : Bool         // Truncation flag
-  mut rd : Bool         // Recursion Desired
-  mut ra : Bool         // Recursion Available
-  mut z : Byte          // 3-bit reserved field, must be zero
-  mut rcode : RCode     // 4-bit response code
-  mut qdcount : UInt16  // Number of entries in Question section
-  mut ancount : UInt16  // Number of Resource Records in Answer section
-  mut nscount : UInt16  // Number of Resource Records in Authority section
-  mut arcount : UInt16  // Number of Resource Records in Additional section
+  mut id : UInt16 // 16-bit identifier assigned by query generator
+  mut qr : Bool // Query (false) or Response (true)
+  mut opcode : OpCode // 4-bit operation code
+  mut aa : Bool // Authoritative Answer
+  mut tc : Bool // Truncation flag
+  mut rd : Bool // Recursion Desired
+  mut ra : Bool // Recursion Available
+  mut z : Byte // 3-bit reserved field, must be zero
+  mut rcode : RCode // 4-bit response code
+  mut qdcount : UInt16 // Number of entries in Question section
+  mut ancount : UInt16 // Number of Resource Records in Answer section
+  mut nscount : UInt16 // Number of Resource Records in Authority section
+  mut arcount : UInt16 // Number of Resource Records in Additional section
 } derive(Debug, Eq)
 
-///| Default constructor for a new DNS query header
+///|
+/// Default constructor for a new DNS query header
 pub fn Header::new_query(id : UInt16) -> Header {
   {
     id,
@@ -127,7 +135,8 @@ pub fn Header::new_query(id : UInt16) -> Header {
   }
 }
 
-///| Construct an authoritative response header responding to a query
+///|
+/// Construct an authoritative response header responding to a query
 pub fn Header::new_response(
   id : UInt16,
   aa : Bool,
@@ -135,7 +144,7 @@ pub fn Header::new_response(
   qdcount : UInt16,
   ancount : UInt16,
   nscount : UInt16,
-  arcount : UInt16
+  arcount : UInt16,
 ) -> Header {
   {
     id,

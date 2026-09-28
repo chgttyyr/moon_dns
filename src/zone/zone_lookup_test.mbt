@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "zone lookup exact match and case insensitive" {
   let zone = Zone::new("example.com.", 300)
   let rec_a = @types.Record::new(
@@ -9,7 +10,12 @@ test "zone lookup exact match and case insensitive" {
     @types.RType::A,
     @types.RClass::IN,
     300,
-    @types.RData::A((93).to_byte(), (184).to_byte(), (216).to_byte(), (34).to_byte())
+    @types.RData::A(
+      (93).to_byte(),
+      (184).to_byte(),
+      (216).to_byte(),
+      (34).to_byte(),
+    ),
   )
   zone.add_record(rec_a)
 
@@ -32,6 +38,7 @@ test "zone lookup exact match and case insensitive" {
   }
 }
 
+///|
 test "zone lookup cname alias" {
   let zone = Zone::new("example.com.", 300)
   let cname_rec = @types.Record::new(
@@ -39,7 +46,7 @@ test "zone lookup cname alias" {
     @types.RType::CNAME,
     @types.RClass::IN,
     300,
-    @types.RData::CNAME("lb.example.com.")
+    @types.RData::CNAME("lb.example.com."),
   )
   zone.add_record(cname_rec)
 
@@ -52,6 +59,7 @@ test "zone lookup cname alias" {
   }
 }
 
+///|
 test "zone lookup wildcard synthesis" {
   let zone = Zone::new("example.com.", 300)
   let wildcard_rec = @types.Record::new(
@@ -59,7 +67,7 @@ test "zone lookup wildcard synthesis" {
     @types.RType::A,
     @types.RClass::IN,
     300,
-    @types.RData::A((10).to_byte(), (0).to_byte(), (0).to_byte(), (1).to_byte())
+    @types.RData::A((10).to_byte(), (0).to_byte(), (0).to_byte(), (1).to_byte()),
   )
   zone.add_record(wildcard_rec)
 
@@ -74,6 +82,7 @@ test "zone lookup wildcard synthesis" {
   }
 }
 
+///|
 test "zone lookup nodata and nxdomain" {
   let zone = Zone::new("example.com.", 300)
   let rec_a = @types.Record::new(
@@ -81,7 +90,7 @@ test "zone lookup nodata and nxdomain" {
     @types.RType::A,
     @types.RClass::IN,
     300,
-    @types.RData::A((1).to_byte(), (2).to_byte(), (3).to_byte(), (4).to_byte())
+    @types.RData::A((1).to_byte(), (2).to_byte(), (3).to_byte(), (4).to_byte()),
   )
   zone.add_record(rec_a)
 

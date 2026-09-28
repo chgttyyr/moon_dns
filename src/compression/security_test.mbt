@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "valid compression pointer resolution" {
   let writer = @bytes_io.ByteWriter::new()
   // At offset 0: "example.com."
@@ -12,9 +13,9 @@ test "valid compression pointer resolution" {
   let base_len = writer.length()
   // At offset base_len: "www" followed by pointer to offset 0 (0xc000)
   writer.write_byte((3).to_byte())
-  writer.write_byte(('w').to_int().to_byte())
-  writer.write_byte(('w').to_int().to_byte())
-  writer.write_byte(('w').to_int().to_byte())
+  writer.write_byte('w'.to_int().to_byte())
+  writer.write_byte('w'.to_int().to_byte())
+  writer.write_byte('w'.to_int().to_byte())
   writer.write_byte((0xc0).to_byte())
   writer.write_byte((0x00).to_byte())
   // Trailing marker byte to verify resume cursor position
@@ -40,6 +41,7 @@ test "valid compression pointer resolution" {
   }
 }
 
+///|
 test "security: reject self-referencing loop pointer" {
   let writer = @bytes_io.ByteWriter::new()
   // Self-pointing pointer at offset 0: 0xc000 points to 0
@@ -52,6 +54,7 @@ test "security: reject self-referencing loop pointer" {
   assert_true(res is Err(_))
 }
 
+///|
 test "security: reject forward-pointing pointer" {
   let writer = @bytes_io.ByteWriter::new()
   // At offset 0: pointer to offset 10 (forward jump)
@@ -68,6 +71,7 @@ test "security: reject forward-pointing pointer" {
   assert_true(res is Err(_))
 }
 
+///|
 test "security: reject out-of-bounds pointer" {
   let writer = @bytes_io.ByteWriter::new()
   // At offset 0: pointer to offset 9999
@@ -80,17 +84,18 @@ test "security: reject out-of-bounds pointer" {
   assert_true(res is Err(_))
 }
 
+///|
 test "security: reject circular loop pointer A -> B -> A" {
   let writer = @bytes_io.ByteWriter::new()
   // Offset 0: label "a" followed by pointer to offset 5
   writer.write_byte((1).to_byte())
-  writer.write_byte(('a').to_int().to_byte())
+  writer.write_byte('a'.to_int().to_byte())
   writer.write_byte((0xc0).to_byte())
   writer.write_byte((0x05).to_byte())
   writer.write_byte((0).to_byte()) // offset 4
   // Offset 5: label "b" followed by pointer back to offset 0 (0xc000)
   writer.write_byte((1).to_byte())
-  writer.write_byte(('b').to_int().to_byte())
+  writer.write_byte('b'.to_int().to_byte())
   writer.write_byte((0xc0).to_byte())
   writer.write_byte((0x00).to_byte())
 
@@ -101,6 +106,7 @@ test "security: reject circular loop pointer A -> B -> A" {
   assert_true(res is Err(_))
 }
 
+///|
 test "security: reject truncated pointer" {
   let writer = @bytes_io.ByteWriter::new()
   // Only high byte of pointer without low byte

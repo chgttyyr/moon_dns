@@ -1,9 +1,9 @@
 /**
  * MoonDNS (chgttyyr/moon_dns) - WebAssembly (Wasm) Runtime Verification Script
  * 
- * Verifies that the compiled MoonBit WASI binary runs inside a standard Node.js
- * WebAssembly sandbox, performs full authoritative DNS resolution, and intercepts
- * malicious compression pointer attacks with zero panic.
+ * Runs the compiled MoonBit in-memory protocol demo inside Node.js WASI Preview 1.
+ * The demo includes representative DNS queries and one malformed compression
+ * pointer input; this script does not exercise native network listeners.
  *
  * Requirements: Node.js >= 18 (built-in WASI support)
  * Run: node scripts/verify_wasm.js
@@ -17,7 +17,7 @@ const wasmPath = path.resolve(__dirname, '../_build/wasm/debug/build/cmd/main/ma
 
 console.log('=================================================================');
 console.log('  MoonDNS - WebAssembly (Wasm) Runtime Verification');
-console.log('  Target: WASI Preview 1 | 100% Zero-FFI Portable Sandbox');
+console.log('  Target: WASI Preview 1 | In-memory protocol demo');
 console.log('=================================================================\n');
 
 if (!fs.existsSync(wasmPath)) {
@@ -46,17 +46,15 @@ WebAssembly.instantiate(wasmBuffer, {
   wasi_snapshot_preview1: wasi.wasiImport
 }).then(({ instance }) => {
   console.log(`  Wasm module instantiated successfully!`);
-  console.log(`  Import dependencies: only [wasi_snapshot_preview1.fd_write] (100% Zero external C/JS FFI)`);
-  console.log(`\n[3/3] Executing MoonDNS Authoritative Pipeline in Wasm Sandbox:\n`);
+  console.log(`  Host integration: Node.js WASI Preview 1`);
+  console.log(`\n[3/3] Executing the in-memory MoonDNS demo:\n`);
   
   try {
     const exitCode = wasi.start(instance);
     console.log(`\n-----------------------------------------------------------------`);
     console.log(`[VERIFICATION RESULT]`);
-    console.log(`  Exit Code: ${exitCode === undefined ? 0 : exitCode}`);
-    console.log(`  Wasm Authoritative DNS Resolution: PASSED`);
-    console.log(`  Wasm Malicious Pointer Defense: PASSED`);
-    console.log(`  Wasm Memory Safety & Zero-Panic: CONFIRMED`);
+    console.log(`  WASI start returned; exit status: ${exitCode === undefined ? 0 : exitCode}`);
+    console.log(`  In-memory demo completed without a non-zero WASI exit.`);
     console.log(`-----------------------------------------------------------------\n`);
   } catch (err) {
     console.error(`[EXECUTION ERROR] Sandbox execution failed:`, err);

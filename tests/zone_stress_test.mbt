@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "zone stress: load 100 domain records and execute rapid batch queries" {
   let zone = @zone.Zone::new("cloud.internal.", 300)
   let server = @transport.DnsServer::new(zone)
@@ -15,7 +16,12 @@ test "zone stress: load 100 domain records and execute rapid batch queries" {
       @types.RType::A,
       @types.RClass::IN,
       300,
-      @types.RData::A((10).to_byte(), (244).to_byte(), (0).to_byte(), last_octet)
+      @types.RData::A(
+        (10).to_byte(),
+        (244).to_byte(),
+        (0).to_byte(),
+        last_octet,
+      ),
     )
     zone.add_record(rec)
   }
@@ -26,14 +32,23 @@ test "zone stress: load 100 domain records and execute rapid batch queries" {
     @types.RType::A,
     @types.RClass::IN,
     60,
-    @types.RData::A((10).to_byte(), (244).to_byte(), (254).to_byte(), (1).to_byte())
+    @types.RData::A(
+      (10).to_byte(),
+      (244).to_byte(),
+      (254).to_byte(),
+      (1).to_byte(),
+    ),
   )
   zone.add_record(wildcard_preview)
 
   // Query each of the 100 nodes and assert 100% resolution accuracy
   for i = 0; i < 100; i = i + 1 {
     let query_host = "node-" + i.to_string() + ".cloud.internal."
-    let q = @types.Message::new_query((1000 + i).to_uint16(), query_host, @types.RType::A)
+    let q = @types.Message::new_query(
+      (1000 + i).to_uint16(),
+      query_host,
+      @types.RType::A,
+    )
     let q_bytes = @codec.encode_message(q)
 
     match server.process_udp(q_bytes) {
@@ -53,7 +68,11 @@ test "zone stress: load 100 domain records and execute rapid batch queries" {
   }
 
   // Query wildcard subdomains
-  let wildcard_q = @types.Message::new_query(0x9999, "pr-1234.preview.cloud.internal.", @types.RType::A)
+  let wildcard_q = @types.Message::new_query(
+    0x9999,
+    "pr-1234.preview.cloud.internal.",
+    @types.RType::A,
+  )
   match server.process_udp(@codec.encode_message(wildcard_q)) {
     Ok(raw) => {
       let resp = match @codec.decode_message(raw) {

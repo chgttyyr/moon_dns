@@ -2,25 +2,27 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| DNS Resource Record Types (RFC 1035, RFC 3596, RFC 6891, RFC 6844, etc.)
+///|
+/// DNS Resource Record Types (RFC 1035, RFC 3596, RFC 6891, RFC 6844, etc.)
 pub(all) enum RType {
-  A         // 1: Host IPv4 address (RFC 1035)
-  NS        // 2: Authoritative name server (RFC 1035)
-  CNAME     // 5: Canonical name for an alias (RFC 1035)
-  SOA       // 6: Start of a zone of authority (RFC 1035)
-  PTR       // 12: Domain name pointer (RFC 1035)
-  MX        // 15: Mail exchange (RFC 1035)
-  TXT       // 16: Text strings (RFC 1035)
-  AAAA      // 28: Host IPv6 address (RFC 3596)
-  SRV       // 33: Server selector (RFC 2782)
-  OPT       // 41: EDNS0 option pseudo-record (RFC 6891)
-  AXFR      // 252: Zone transfer query (RFC 1035)
-  ANY       // 255: Request for any records (RFC 1035)
-  CAA       // 257: Certification Authority Authorization (RFC 6844)
+  A // 1: Host IPv4 address (RFC 1035)
+  NS // 2: Authoritative name server (RFC 1035)
+  CNAME // 5: Canonical name for an alias (RFC 1035)
+  SOA // 6: Start of a zone of authority (RFC 1035)
+  PTR // 12: Domain name pointer (RFC 1035)
+  MX // 15: Mail exchange (RFC 1035)
+  TXT // 16: Text strings (RFC 1035)
+  AAAA // 28: Host IPv6 address (RFC 3596)
+  SRV // 33: Server selector (RFC 2782)
+  OPT // 41: EDNS0 option pseudo-record (RFC 6891)
+  AXFR // 252: Zone transfer query (RFC 1035)
+  ANY // 255: Request for any records (RFC 1035)
+  CAA // 257: Certification Authority Authorization (RFC 6844)
   Unknown(UInt16)
 } derive(Debug, Eq)
 
-///| Convert RType to standard wire protocol 16-bit unsigned integer
+///|
+/// Convert RType to standard wire protocol 16-bit unsigned integer
 pub fn RType::to_wire(self : RType) -> UInt16 {
   match self {
     A => 1
@@ -40,7 +42,8 @@ pub fn RType::to_wire(self : RType) -> UInt16 {
   }
 }
 
-///| Parse RType from wire protocol 16-bit integer
+///|
+/// Parse RType from wire protocol 16-bit integer
 pub fn RType::from_wire(code : UInt16) -> RType {
   match code {
     1 => A
@@ -60,7 +63,8 @@ pub fn RType::from_wire(code : UInt16) -> RType {
   }
 }
 
-///| Convert RType to human-readable string representation
+///|
+/// Convert RType to human-readable string representation
 pub fn RType::to_string(self : RType) -> String {
   match self {
     A => "A"
@@ -80,8 +84,9 @@ pub fn RType::to_string(self : RType) -> String {
   }
 }
 
-///| Parse RType from uppercase string representation
-pub fn RType::from_string(s : String) -> Option[RType] {
+///|
+/// Parse RType from uppercase string representation
+pub fn RType::from_string(s : String) -> RType? {
   match s {
     "A" => Some(A)
     "NS" => Some(NS)
@@ -100,18 +105,20 @@ pub fn RType::from_string(s : String) -> Option[RType] {
   }
 }
 
-///| DNS Record Classes (RFC 1035 Section 3.2.4)
+///|
+/// DNS Record Classes (RFC 1035 Section 3.2.4)
 pub(all) enum RClass {
-  IN        // 1: Internet class (the ubiquitous standard)
-  CS        // 2: CSNET class (obsolete)
-  CH        // 3: CHAOS class
-  HS        // 4: Hesiod class
-  NONE      // 254: None class (RFC 2136)
-  ANY       // 255: Any class
+  IN // 1: Internet class (the ubiquitous standard)
+  CS // 2: CSNET class (obsolete)
+  CH // 3: CHAOS class
+  HS // 4: Hesiod class
+  NONE // 254: None class (RFC 2136)
+  ANY // 255: Any class
   Unknown(UInt16)
 } derive(Debug, Eq)
 
-///| Convert RClass to wire protocol 16-bit integer
+///|
+/// Convert RClass to wire protocol 16-bit integer
 pub fn RClass::to_wire(self : RClass) -> UInt16 {
   match self {
     IN => 1
@@ -124,7 +131,8 @@ pub fn RClass::to_wire(self : RClass) -> UInt16 {
   }
 }
 
-///| Parse RClass from wire protocol 16-bit integer
+///|
+/// Parse RClass from wire protocol 16-bit integer
 pub fn RClass::from_wire(code : UInt16) -> RClass {
   match code {
     1 => IN
@@ -137,7 +145,8 @@ pub fn RClass::from_wire(code : UInt16) -> RClass {
   }
 }
 
-///| Convert RClass to human-readable string representation
+///|
+/// Convert RClass to human-readable string representation
 pub fn RClass::to_string(self : RClass) -> String {
   match self {
     IN => "IN"
@@ -150,14 +159,16 @@ pub fn RClass::to_string(self : RClass) -> String {
   }
 }
 
-///| DNS Question Entry (RFC 1035 Section 4.1.2)
+///|
+/// DNS Question Entry (RFC 1035 Section 4.1.2)
 pub(all) struct Question {
-  name : String     // Domain name in FQDN string format
-  qtype : RType     // Target record type requested
-  qclass : RClass   // Query class (almost always IN)
+  name : String // Domain name in FQDN string format
+  qtype : RType // Target record type requested
+  qclass : RClass // Query class (almost always IN)
 } derive(Debug, Eq)
 
-///| Create a new Question instance
+///|
+/// Create a new Question instance
 pub fn Question::new(name : String, qtype : RType, qclass : RClass) -> Question {
-  { name, qtype, qclass }
+  { name, qtype, qclass, }
 }

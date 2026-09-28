@@ -1,0 +1,26 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/cmd/moondns/cli"
+
+import {
+  "chgttyyr/moon_dns/src/types",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn parse_cli(Array[String]) -> Result[CLICommand, String]
+
+pub fn usage() -> String
+
+// Errors
+
+// Types and methods
+pub(all) enum CLICommand {
+  Serve(String, String, String, UInt16, Int)
+  Query(String, UInt16, String, @types.RType)
+  Check(String, String)
+  Help
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits

@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "compression dictionary deduplication and roundtrip" {
   let writer = @bytes_io.ByteWriter::new()
   let cmap = CompressionMap::new()

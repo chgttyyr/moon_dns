@@ -2,24 +2,28 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| An entry in the outbound compression dictionary mapping a domain suffix to its byte offset
+///|
+/// An entry in the outbound compression dictionary mapping a domain suffix to its byte offset
 pub(all) struct CompressionEntry {
-  domain : String   // Normalized FQDN suffix
-  offset : Int      // Absolute wire offset in the message
+  domain : String // Normalized FQDN suffix
+  offset : Int // Absolute wire offset in the message
 } derive(Debug, Eq)
 
-///| CompressionMap maintains a dictionary of previously encoded domain suffixes during message serialization
+///|
+/// CompressionMap maintains a dictionary of previously encoded domain suffixes during message serialization
 pub(all) struct CompressionMap {
   entries : Array[CompressionEntry]
 } derive(Debug)
 
-///| Create an empty CompressionMap
+///|
+/// Create an empty CompressionMap
 pub fn CompressionMap::new() -> CompressionMap {
-  { entries: [] }
+  { entries: [], }
 }
 
-///| Search for a matching suffix in the compression map using case-insensitive comparison
-pub fn CompressionMap::find(self : CompressionMap, suffix : String) -> Option[Int] {
+///|
+/// Search for a matching suffix in the compression map using case-insensitive comparison
+pub fn CompressionMap::find(self : CompressionMap, suffix : String) -> Int? {
   for i = 0; i < self.entries.length(); i = i + 1 {
     if @domain.domain_equal(self.entries[i].domain, suffix) {
       return Some(self.entries[i].offset)
@@ -28,14 +32,20 @@ pub fn CompressionMap::find(self : CompressionMap, suffix : String) -> Option[In
   None
 }
 
-///| Insert a new domain suffix and its byte offset (ignoring offsets exceeding 14 bits)
-pub fn CompressionMap::insert(self : CompressionMap, domain : String, offset : Int) -> Unit {
+///|
+/// Insert a new domain suffix and its byte offset (ignoring offsets exceeding 14 bits)
+pub fn CompressionMap::insert(
+  self : CompressionMap,
+  domain : String,
+  offset : Int,
+) -> Unit {
   if offset <= 0x3fff {
-    self.entries.push({ domain: @domain.normalize_fqdn(domain), offset })
+    self.entries.push({ domain: @domain.normalize_fqdn(domain), offset, })
   }
 }
 
-///| Reconstruct a domain suffix starting from label index k
+///|
+/// Reconstruct a domain suffix starting from label index k
 fn build_suffix(labels : Array[String], start_idx : Int) -> String {
   let buf = StringBuilder()
   for i = start_idx; i < labels.length(); i = i + 1 {
@@ -45,11 +55,12 @@ fn build_suffix(labels : Array[String], start_idx : Int) -> String {
   buf.to_string()
 }
 
-///| Encode a domain with adaptive suffix pointer compression (RFC 1035 Section 4.1.4)
+///|
+/// Encode a domain with adaptive suffix pointer compression (RFC 1035 Section 4.1.4)
 pub fn encode_domain_compressed(
   writer : @bytes_io.ByteWriter,
   cmap : CompressionMap,
-  domain : String
+  domain : String,
 ) -> Result[Unit, @types.DnsError] {
   let norm = @domain.normalize_fqdn(domain)
   if norm == "." {

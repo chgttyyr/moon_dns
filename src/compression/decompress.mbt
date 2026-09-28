@@ -2,12 +2,14 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Maximum allowed pointer decompression jumps to prevent recursive amplification DoS
+///|
+/// Maximum allowed pointer decompression jumps to prevent recursive amplification DoS
 pub const MAX_POINTER_JUMPS : Int = 128
 
-///| Decode a compressed domain name from the stream with four-layer malicious pointer defenses.
+///|
+/// Decode a compressed domain name from the stream with four-layer malicious pointer defenses.
 pub fn decode_domain_compressed(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[String, @types.DnsError] {
   let buf = StringBuilder()
   let mut is_first_label = true
@@ -50,29 +52,60 @@ pub fn decode_domain_compressed(
     if (b & 0xc0) == 0xc0 {
       let b1_byte = match reader.read_byte() {
         Ok(b1) => b1
-        Err(_) => return Err(@types.MalformedPointer("Truncated 2-octet pointer at offset " + current_pos.to_string()))
+        Err(_) =>
+          return Err(
+            @types.MalformedPointer(
+              "Truncated 2-octet pointer at offset " + current_pos.to_string(),
+            ),
+          )
       }
       let b1 = b1_byte.to_int()
       let target_offset = ((b & 0x3f) << 8) | b1
 
       // Defense Layer 1 & 3: Target must precede current pointer and be within packet bounds
       if target_offset >= current_pos {
-        return Err(@types.MalformedPointer("Pointer target " + target_offset.to_string() + " points to self or forward relative to " + current_pos.to_string()))
+        return Err(
+          @types.MalformedPointer(
+            "Pointer target " +
+            target_offset.to_string() +
+            " points to self or forward relative to " +
+            current_pos.to_string(),
+          ),
+        )
       }
       if target_offset < 0 || target_offset >= total_len {
-        return Err(@types.MalformedPointer("Pointer target " + target_offset.to_string() + " is out of packet bounds [0, " + total_len.to_string() + ")"))
+        return Err(
+          @types.MalformedPointer(
+            "Pointer target " +
+            target_offset.to_string() +
+            " is out of packet bounds [0, " +
+            total_len.to_string() +
+            ")",
+          ),
+        )
       }
 
       // Defense Layer 4: Jump count depth limit
       jump_count = jump_count + 1
       if jump_count > MAX_POINTER_JUMPS {
-        return Err(@types.MalformedPointer("Pointer chain exceeded maximum allowed jumps (" + MAX_POINTER_JUMPS.to_string() + ")"))
+        return Err(
+          @types.MalformedPointer(
+            "Pointer chain exceeded maximum allowed jumps (" +
+            MAX_POINTER_JUMPS.to_string() +
+            ")",
+          ),
+        )
       }
 
       // Defense Layer 2: Loop detection (A -> B -> A, etc.)
       for i = 0; i < visited_offsets.length(); i = i + 1 {
         if visited_offsets[i] == target_offset {
-          return Err(@types.MalformedPointer("Circular pointer loop detected targeting offset " + target_offset.to_string()))
+          return Err(
+            @types.MalformedPointer(
+              "Circular pointer loop detected targeting offset " +
+              target_offset.to_string(),
+            ),
+          )
         }
       }
       visited_offsets.push(target_offset)
@@ -93,17 +126,27 @@ pub fn decode_domain_compressed(
 
     // Case 3: Invalid indicator bits (e.g. 01 or 10)
     if (b & 0xc0) != 0 {
-      return Err(@types.MalformedLabel("Invalid label length prefix flags: 0x" + b.to_string()))
+      return Err(
+        @types.MalformedLabel(
+          "Invalid label length prefix flags: 0x" + b.to_string(),
+        ),
+      )
     }
 
     // Case 4: Standard uncompressed label (1..63 octets)
     let label_len = b
     if label_len > 63 {
-      return Err(@types.MalformedLabel("Label length " + label_len.to_string() + " exceeds 63 octets limit"))
+      return Err(
+        @types.MalformedLabel(
+          "Label length " + label_len.to_string() + " exceeds 63 octets limit",
+        ),
+      )
     }
     total_octets = total_octets + label_len + 1
     if total_octets > 255 {
-      return Err(@types.MalformedLabel("Total domain length exceeds 255 octets limit"))
+      return Err(
+        @types.MalformedLabel("Total domain length exceeds 255 octets limit"),
+      )
     }
 
     if !is_first_label {

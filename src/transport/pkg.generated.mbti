@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/transport"
+
+import {
+  "chgttyyr/moon_dns/src/bytes_io",
+  "chgttyyr/moon_dns/src/types",
+  "chgttyyr/moon_dns/src/zone",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn decode_tcp_frame(@bytes_io.ByteReader) -> Result[Bytes, @types.DnsError]
+
+pub fn encode_tcp_frame(Bytes) -> Bytes
+
+pub fn handle_dns_packet(@zone.Zone, Bytes, Bool) -> Result[Bytes, @types.DnsError]
+
+// Errors
+
+// Types and methods
+pub(all) struct DnsServer {
+  zone : @zone.Zone
+  mut query_count : UInt64
+  mut error_count : UInt64
+} derive(@debug.Debug)
+pub fn DnsServer::new(@zone.Zone) -> Self
+pub fn DnsServer::process_tcp(Self, Bytes) -> Result[Bytes, @types.DnsError]
+pub fn DnsServer::process_udp(Self, Bytes) -> Result[Bytes, @types.DnsError]
+
+// Type aliases
+
+// Traits

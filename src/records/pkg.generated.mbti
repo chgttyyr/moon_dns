@@ -1,0 +1,72 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/records"
+
+import {
+  "chgttyyr/moon_dns/src/bytes_io",
+  "chgttyyr/moon_dns/src/types",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn decode_rdata_a(@bytes_io.ByteReader, UInt16) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_aaaa(@bytes_io.ByteReader, UInt16) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_caa(@bytes_io.ByteReader, UInt16) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_cname(@bytes_io.ByteReader) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_mx(@bytes_io.ByteReader) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_ns(@bytes_io.ByteReader) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_ptr(@bytes_io.ByteReader) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_soa(@bytes_io.ByteReader) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_srv(@bytes_io.ByteReader) -> Result[@types.RData, @types.DnsError]
+
+pub fn decode_rdata_txt(@bytes_io.ByteReader, UInt16) -> Result[@types.RData, @types.DnsError]
+
+pub fn encode_rdata_a(@bytes_io.ByteWriter, Byte, Byte, Byte, Byte) -> Unit
+
+pub fn encode_rdata_aaaa(@bytes_io.ByteWriter, FixedArray[Byte]) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_caa(@bytes_io.ByteWriter, Byte, String, String) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_cname(@bytes_io.ByteWriter, String) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_mx(@bytes_io.ByteWriter, UInt16, String) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_ns(@bytes_io.ByteWriter, String) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_ptr(@bytes_io.ByteWriter, String) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_soa(@bytes_io.ByteWriter, String, String, UInt, UInt, UInt, UInt, UInt) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_srv(@bytes_io.ByteWriter, UInt16, UInt16, UInt16, String) -> Result[Unit, @types.DnsError]
+
+pub fn encode_rdata_txt(@bytes_io.ByteWriter, Array[String]) -> Result[Unit, @types.DnsError]
+
+pub fn parse_ipv4(String) -> Result[@types.RData, @types.DnsError]
+
+pub fn parse_ipv6(String) -> Result[@types.RData, @types.DnsError]
+
+// Errors
+
+// Types and methods
+pub(all) struct OptRecord {
+  udp_payload_size : UInt16
+  extended_rcode : Byte
+  version : Byte
+  do_flag : Bool
+  data : Bytes
+} derive(Eq, @debug.Debug)
+pub fn OptRecord::new(UInt16, Bool) -> Self
+pub fn OptRecord::pack_ttl(Self) -> UInt
+pub fn OptRecord::to_record(Self) -> @types.Record
+pub fn OptRecord::unpack(UInt16, UInt, Bytes) -> Self
+
+// Type aliases
+
+// Traits

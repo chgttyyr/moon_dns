@@ -1,0 +1,17 @@
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/io",
+  "moonbitlang/async/socket",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/env",
+  "chgttyyr/moon_dns/cmd/moondns/cli",
+  "chgttyyr/moon_dns/src/codec",
+  "chgttyyr/moon_dns/src/transport",
+  "chgttyyr/moon_dns/src/types",
+  "chgttyyr/moon_dns/src/zone",
+}
+
+supported_targets = "+native"
+
+pkgtype(kind: "executable")

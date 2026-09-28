@@ -2,7 +2,8 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| RData payload variants corresponding to each supported DNS RR type
+///|
+/// RData payload variants corresponding to each supported DNS RR type
 pub(all) enum RData {
   A(Byte, Byte, Byte, Byte)
   AAAA(FixedArray[Byte])
@@ -18,7 +19,8 @@ pub(all) enum RData {
   Raw(Bytes)
 } derive(Debug, Eq)
 
-///| Returns the corresponding RType for this RData instance
+///|
+/// Returns the corresponding RType for this RData instance
 pub fn RData::rtype(self : RData) -> RType {
   match self {
     A(_) => A
@@ -36,15 +38,20 @@ pub fn RData::rtype(self : RData) -> RType {
   }
 }
 
-///| Helper to format IPv4 address as dotted quad
+///|
+/// Helper to format IPv4 address as dotted quad
 pub fn format_ipv4(b0 : Byte, b1 : Byte, b2 : Byte, b3 : Byte) -> String {
-  b0.to_int().to_string() + "." +
-  b1.to_int().to_string() + "." +
-  b2.to_int().to_string() + "." +
+  b0.to_int().to_string() +
+  "." +
+  b1.to_int().to_string() +
+  "." +
+  b2.to_int().to_string() +
+  "." +
   b3.to_int().to_string()
 }
 
-///| Helper to format IPv6 address as colon-hex
+///|
+/// Helper to format IPv6 address as colon-hex
 pub fn format_ipv6(bytes : FixedArray[Byte]) -> String {
   let buf = StringBuilder()
   for i = 0; i < 16; i = i + 2 {
@@ -65,7 +72,8 @@ pub fn format_ipv6(bytes : FixedArray[Byte]) -> String {
   buf.to_string()
 }
 
-///| Format RData into standard master file presentation text
+///|
+/// Format RData into standard master file presentation text
 pub fn RData::to_presentation(self : RData) -> String {
   match self {
     A(b0, b1, b2, b3) => format_ipv4(b0, b1, b2, b3)
@@ -87,34 +95,52 @@ pub fn RData::to_presentation(self : RData) -> String {
       buf.to_string()
     }
     SOA(mname, rname, serial, refresh, retry, expire, min) =>
-      mname + " " + rname + " " + serial.to_string() + " " +
-      refresh.to_string() + " " + retry.to_string() + " " +
-      expire.to_string() + " " + min.to_string()
+      mname +
+      " " +
+      rname +
+      " " +
+      serial.to_string() +
+      " " +
+      refresh.to_string() +
+      " " +
+      retry.to_string() +
+      " " +
+      expire.to_string() +
+      " " +
+      min.to_string()
     SRV(prio, weight, port, target) =>
-      prio.to_string() + " " + weight.to_string() + " " +
-      port.to_string() + " " + target
-    CAA(flags, tag, val) => flags.to_int().to_string() + " " + tag + " \"" + val + "\""
+      prio.to_string() +
+      " " +
+      weight.to_string() +
+      " " +
+      port.to_string() +
+      " " +
+      target
+    CAA(flags, tag, val) =>
+      flags.to_int().to_string() + " " + tag + " \"" + val + "\""
     OPT(udp_size, _, _, _, _) => "EDNS0 UDP=" + udp_size.to_string()
     Raw(bytes) => "RAW[" + bytes.length().to_string() + " bytes]"
   }
 }
 
-///| DNS Resource Record (RFC 1035 Section 4.1.3)
+///|
+/// DNS Resource Record (RFC 1035 Section 4.1.3)
 pub(all) struct Record {
-  name : String     // Domain name owner of this record
-  rtype : RType     // Record type
-  rclass : RClass   // Record class (typically IN)
-  ttl : UInt        // Time to live in seconds
-  rdata : RData     // Type-specific payload
+  name : String // Domain name owner of this record
+  rtype : RType // Record type
+  rclass : RClass // Record class (typically IN)
+  ttl : UInt // Time to live in seconds
+  rdata : RData // Type-specific payload
 } derive(Debug, Eq)
 
-///| Constructor for a standard Record
+///|
+/// Constructor for a standard Record
 pub fn Record::new(
   name : String,
   rtype : RType,
   rclass : RClass,
   ttl : UInt,
-  rdata : RData
+  rdata : RData,
 ) -> Record {
-  { name, rtype, rclass, ttl, rdata }
+  { name, rtype, rclass, ttl, rdata, }
 }

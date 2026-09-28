@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "facade server creation and quick resolve" {
   let zone_text =
     #|$ORIGIN mycloud.io.
@@ -36,9 +37,15 @@ test "facade server creation and quick resolve" {
   }
 }
 
+///|
 test "facade hex codec and packet resolution" {
   // 1. Test hex codec roundtrip
-  let raw = Bytes::from_array([ (0xDE).to_byte(), (0xAD).to_byte(), (0xBE).to_byte(), (0xEF).to_byte() ])
+  let raw = Bytes::from_array([
+    (0xDE).to_byte(),
+    (0xAD).to_byte(),
+    (0xBE).to_byte(),
+    (0xEF).to_byte(),
+  ])
   let hex = bytes_to_hex(raw)
   assert_eq(hex, "deadbeef")
   let back = hex_to_bytes(hex)
@@ -56,7 +63,11 @@ test "facade hex codec and packet resolution" {
     #|server IN A 5.6.7.8
   match create_server_from_zone_text("hexzone.org.", zone_text) {
     Ok(server) => {
-      let q = @types.Message::new_query(0x4321, "server.hexzone.org.", @types.RType::A)
+      let q = @types.Message::new_query(
+        0x4321,
+        "server.hexzone.org.",
+        @types.RType::A,
+      )
       let q_bytes = @codec.encode_message(q)
       match resolve_raw_packet(server, q_bytes) {
         Ok(resp_bytes) => {

@@ -2,19 +2,21 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Encode an MX record RDATA (2-byte preference + exchange domain)
+///|
+/// Encode an MX record RDATA (2-byte preference + exchange domain)
 pub fn encode_rdata_mx(
   writer : @bytes_io.ByteWriter,
   preference : UInt16,
-  exchange : String
+  exchange : String,
 ) -> Result[Unit, @types.DnsError] {
   writer.write_uint16(preference)
   @domain.encode_domain_labels(writer, exchange)
 }
 
-///| Decode an MX record RDATA from wire format
+///|
+/// Decode an MX record RDATA from wire format
 pub fn decode_rdata_mx(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[@types.RData, @types.DnsError] {
   let preference = match reader.read_uint16() {
     Ok(p) => p
@@ -27,34 +29,52 @@ pub fn decode_rdata_mx(
   Ok(@types.RData::MX(preference, exchange))
 }
 
-///| Encode a TXT record RDATA (one or more length-prefixed character-strings, RFC 1035)
+///|
+/// Encode a TXT record RDATA (one or more length-prefixed character-strings, RFC 1035)
 pub fn encode_rdata_txt(
   writer : @bytes_io.ByteWriter,
-  chunks : Array[String]
+  chunks : Array[String],
 ) -> Result[Unit, @types.DnsError] {
   if chunks.length() == 0 {
     // Empty TXT is represented as a single 0-length character-string
     writer.write_byte((0).to_byte())
     return Ok(())
   }
+
+  let encoded_chunks : Array[Bytes] = []
+  let mut rdata_length = 0
   for i = 0; i < chunks.length(); i = i + 1 {
-    let chunk = chunks[i]
-    let len = chunk.length()
+    let encoded = @utf8.encode(chunks[i])
+    let len = encoded.length()
     if len > 255 {
-      return Err(@types.InvalidLength("TXT character-string exceeds 255 octets: " + len.to_string()))
+      return Err(
+        @types.InvalidLength(
+          "TXT character-string exceeds 255 octets: " + len.to_string(),
+        ),
+      )
     }
+    if rdata_length > 65535 - len - 1 {
+      return Err(@types.InvalidLength("TXT RDATA exceeds 65535 octets"))
+    }
+    rdata_length = rdata_length + len + 1
+    encoded_chunks.push(encoded)
+  }
+
+  for encoded in encoded_chunks {
+    let len = encoded.length()
     writer.write_byte(len.to_byte())
     for j = 0; j < len; j = j + 1 {
-      writer.write_byte(chunk[j].to_int().to_byte())
+      writer.write_byte(encoded[j])
     }
   }
   Ok(())
 }
 
-///| Decode a TXT record RDATA from wire format using total rdlength
+///|
+/// Decode a TXT record RDATA from wire format using total rdlength
 pub fn decode_rdata_txt(
   reader : @bytes_io.ByteReader,
-  rdlength : UInt16
+  rdlength : UInt16,
 ) -> Result[@types.RData, @types.DnsError] {
   let chunks : Array[String] = []
   let mut remaining = rdlength.to_int()
@@ -69,23 +89,27 @@ pub fn decode_rdata_txt(
     let chunk_len = len_byte.to_int()
     remaining = remaining - 1
     if chunk_len > remaining {
-      return Err(@types.BufferUnderflow("TXT chunk length " + chunk_len.to_string() + " exceeds remaining RDATA " + remaining.to_string()))
+      return Err(
+        @types.BufferUnderflow(
+          "TXT chunk length " +
+          chunk_len.to_string() +
+          " exceeds remaining RDATA " +
+          remaining.to_string(),
+        ),
+      )
     }
     let str_bytes = match reader.read_bytes(chunk_len) {
       Ok(bs) => bs
       Err(e) => return Err(e)
     }
-    let buf = StringBuilder()
-    for i = 0; i < chunk_len; i = i + 1 {
-      buf.write_char(Int::unsafe_to_char(str_bytes[i].to_int()))
-    }
-    chunks.push(buf.to_string())
+    chunks.push(@utf8.decode_lossy(str_bytes))
     remaining = remaining - chunk_len
   }
   Ok(@types.RData::TXT(chunks))
 }
 
-///| Encode an SOA record RDATA (RFC 1035 Section 3.3.13)
+///|
+/// Encode an SOA record RDATA (RFC 1035 Section 3.3.13)
 pub fn encode_rdata_soa(
   writer : @bytes_io.ByteWriter,
   mname : String,
@@ -94,7 +118,7 @@ pub fn encode_rdata_soa(
   refresh : UInt,
   retry : UInt,
   expire : UInt,
-  minimum : UInt
+  minimum : UInt,
 ) -> Result[Unit, @types.DnsError] {
   let res1 = @domain.encode_domain_labels(writer, mname)
   match res1 {
@@ -114,9 +138,10 @@ pub fn encode_rdata_soa(
   Ok(())
 }
 
-///| Decode an SOA record RDATA from wire format
+///|
+/// Decode an SOA record RDATA from wire format
 pub fn decode_rdata_soa(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[@types.RData, @types.DnsError] {
   let mname = match @domain.decode_domain_labels(reader) {
     Ok(m) => m
@@ -149,17 +174,19 @@ pub fn decode_rdata_soa(
   Ok(@types.RData::SOA(mname, rname, serial, refresh, retry, expire, minimum))
 }
 
-///| Encode a PTR record RDATA (target domain)
+///|
+/// Encode a PTR record RDATA (target domain)
 pub fn encode_rdata_ptr(
   writer : @bytes_io.ByteWriter,
-  ptrdname : String
+  ptrdname : String,
 ) -> Result[Unit, @types.DnsError] {
   @domain.encode_domain_labels(writer, ptrdname)
 }
 
-///| Decode a PTR record RDATA from wire format
+///|
+/// Decode a PTR record RDATA from wire format
 pub fn decode_rdata_ptr(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[@types.RData, @types.DnsError] {
   let name = match @domain.decode_domain_labels(reader) {
     Ok(n) => n
@@ -168,13 +195,14 @@ pub fn decode_rdata_ptr(
   Ok(@types.RData::PTR(name))
 }
 
-///| Encode an SRV record RDATA (priority, weight, port, target, RFC 2782)
+///|
+/// Encode an SRV record RDATA (priority, weight, port, target, RFC 2782)
 pub fn encode_rdata_srv(
   writer : @bytes_io.ByteWriter,
   priority : UInt16,
   weight : UInt16,
   port : UInt16,
-  target : String
+  target : String,
 ) -> Result[Unit, @types.DnsError] {
   writer.write_uint16(priority)
   writer.write_uint16(weight)
@@ -182,9 +210,10 @@ pub fn encode_rdata_srv(
   @domain.encode_domain_labels(writer, target)
 }
 
-///| Decode an SRV record RDATA from wire format
+///|
+/// Decode an SRV record RDATA from wire format
 pub fn decode_rdata_srv(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[@types.RData, @types.DnsError] {
   let priority = match reader.read_uint16() {
     Ok(p) => p
@@ -205,32 +234,41 @@ pub fn decode_rdata_srv(
   Ok(@types.RData::SRV(priority, weight, port, target))
 }
 
-///| Encode a CAA record RDATA (flags, tag, value, RFC 6844)
+///|
+/// Encode a CAA record RDATA (flags, tag, value, RFC 6844)
 pub fn encode_rdata_caa(
   writer : @bytes_io.ByteWriter,
   flags : Byte,
   tag : String,
-  value : String
+  value : String,
 ) -> Result[Unit, @types.DnsError] {
-  let tag_len = tag.length()
+  let tag_bytes = @utf8.encode(tag)
+  let value_bytes = @utf8.encode(value)
+  let tag_len = tag_bytes.length()
   if tag_len > 255 {
-    return Err(@types.InvalidLength("CAA tag length exceeds 255: " + tag_len.to_string()))
+    return Err(
+      @types.InvalidLength("CAA tag length exceeds 255: " + tag_len.to_string()),
+    )
+  }
+  if value_bytes.length() > 65535 - 2 - tag_len {
+    return Err(@types.InvalidLength("CAA RDATA exceeds 65535 octets"))
   }
   writer.write_byte(flags)
   writer.write_byte(tag_len.to_byte())
   for i = 0; i < tag_len; i = i + 1 {
-    writer.write_byte(tag[i].to_int().to_byte())
+    writer.write_byte(tag_bytes[i])
   }
-  for j = 0; j < value.length(); j = j + 1 {
-    writer.write_byte(value[j].to_int().to_byte())
+  for j = 0; j < value_bytes.length(); j = j + 1 {
+    writer.write_byte(value_bytes[j])
   }
   Ok(())
 }
 
-///| Decode a CAA record RDATA from wire format
+///|
+/// Decode a CAA record RDATA from wire format
 pub fn decode_rdata_caa(
   reader : @bytes_io.ByteReader,
-  rdlength : UInt16
+  rdlength : UInt16,
 ) -> Result[@types.RData, @types.DnsError] {
   if rdlength < 2 {
     return Err(@types.BufferUnderflow("CAA record requires at least 2 bytes"))
@@ -252,17 +290,15 @@ pub fn decode_rdata_caa(
     Ok(tb) => tb
     Err(e) => return Err(e)
   }
-  let tag_buf = StringBuilder()
-  for i = 0; i < tag_len; i = i + 1 {
-    tag_buf.write_char(Int::unsafe_to_char(tag_bytes[i].to_int()))
-  }
   let val_bytes = match reader.read_bytes(value_len) {
     Ok(vb) => vb
     Err(e) => return Err(e)
   }
-  let val_buf = StringBuilder()
-  for j = 0; j < value_len; j = j + 1 {
-    val_buf.write_char(Int::unsafe_to_char(val_bytes[j].to_int()))
-  }
-  Ok(@types.RData::CAA(flags, tag_buf.to_string(), val_buf.to_string()))
+  Ok(
+    @types.RData::CAA(
+      flags,
+      @utf8.decode_lossy(tag_bytes),
+      @utf8.decode_lossy(val_bytes),
+    ),
+  )
 }

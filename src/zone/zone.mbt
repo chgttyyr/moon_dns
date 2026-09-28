@@ -2,7 +2,8 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Result of an authoritative query lookup in a Zone database
+///|
+/// Result of an authoritative query lookup in a Zone database
 pub(all) enum LookupResult {
   ExactMatch(Array[@types.Record])
   CNameMatch(@types.Record, String)
@@ -12,15 +13,17 @@ pub(all) enum LookupResult {
   NotAuthoritative
 } derive(Debug)
 
-///| Zone database holding records for an authoritative apex origin
+///|
+/// Zone database holding records for an authoritative apex origin
 pub(all) struct Zone {
   mut origin : String
   mut default_ttl : UInt
-  mut soa : Option[@types.Record]
+  mut soa : @types.Record?
   records : Array[@types.Record]
 } derive(Debug)
 
-///| Create an empty Zone for a given origin domain
+///|
+/// Create an empty Zone for a given origin domain
 pub fn Zone::new(origin : String, default_ttl : UInt) -> Zone {
   {
     origin: @domain.normalize_fqdn(origin),
@@ -30,7 +33,8 @@ pub fn Zone::new(origin : String, default_ttl : UInt) -> Zone {
   }
 }
 
-///| Add a Resource Record into the zone
+///|
+/// Add a Resource Record into the zone
 pub fn Zone::add_record(self : Zone, record : @types.Record) -> Unit {
   let norm_rec = @types.Record::new(
     @domain.normalize_fqdn(record.name),
@@ -45,7 +49,14 @@ pub fn Zone::add_record(self : Zone, record : @types.Record) -> Unit {
   self.records.push(norm_rec)
 }
 
-///| Get the authoritative SOA record or create a fallback default SOA
+///|
+/// Return the number of records stored in this zone.
+pub fn Zone::record_count(self : Zone) -> Int {
+  self.records.length()
+}
+
+///|
+/// Get the authoritative SOA record or create a fallback default SOA
 pub fn Zone::get_soa_or_fallback(self : Zone) -> @types.Record {
   match self.soa {
     Some(rec) => rec
@@ -53,16 +64,23 @@ pub fn Zone::get_soa_or_fallback(self : Zone) -> @types.Record {
       let mname = "ns1." + self.origin
       let rname = "hostmaster." + self.origin
       let rdata = @types.RData::SOA(mname, rname, 1, 7200, 3600, 1209600, 3600)
-      @types.Record::new(self.origin, @types.RType::SOA, @types.RClass::IN, 3600, rdata)
+      @types.Record::new(
+        self.origin,
+        @types.RType::SOA,
+        @types.RClass::IN,
+        3600,
+        rdata,
+      )
     }
   }
 }
 
-///| Lookup records for a given domain and QTYPE strictly implementing RFC 1034 / RFC 1035 rules
+///|
+/// Lookup records for a given domain and QTYPE strictly implementing RFC 1034 / RFC 1035 rules
 pub fn Zone::lookup(
   self : Zone,
   query_name : String,
-  qtype : @types.RType
+  qtype : @types.RType,
 ) -> LookupResult {
   let qname = @domain.normalize_fqdn(query_name)
 
@@ -77,7 +95,8 @@ pub fn Zone::lookup(
   if qtype != @types.RType::CNAME {
     for i = 0; i < self.records.length(); i = i + 1 {
       let rec = self.records[i]
-      if @domain.domain_equal(rec.name, qname) && rec.rtype == @types.RType::CNAME {
+      if @domain.domain_equal(rec.name, qname) &&
+        rec.rtype == @types.RType::CNAME {
         match rec.rdata {
           @types.RData::CNAME(target) => return CNameMatch(rec, target)
           _ => ()

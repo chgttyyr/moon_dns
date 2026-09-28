@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns"
+
+import {
+  "chgttyyr/moon_dns/src/transport",
+  "chgttyyr/moon_dns/src/types",
+}
+
+// Values
+pub const VERSION : String = "0.1.0"
+
+pub fn bytes_to_hex(Bytes) -> String
+
+pub fn create_server_from_zone_text(String, String) -> Result[@transport.DnsServer, @types.DnsError]
+
+pub fn hex_to_bytes(String) -> Bytes
+
+pub fn quick_resolve(@transport.DnsServer, String, @types.RType) -> Result[Array[@types.Record], @types.DnsError]
+
+pub fn resolve_hex_packet(@transport.DnsServer, String) -> Result[String, @types.DnsError]
+
+pub fn resolve_raw_packet(@transport.DnsServer, Bytes) -> Result[Bytes, @types.DnsError]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

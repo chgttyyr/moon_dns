@@ -1,0 +1,160 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/types"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn format_ipv4(Byte, Byte, Byte, Byte) -> String
+
+pub fn format_ipv6(FixedArray[Byte]) -> String
+
+// Errors
+
+// Types and methods
+pub(all) enum DnsError {
+  BufferUnderflow(String)
+  BufferOverflow(String)
+  MalformedLabel(String)
+  MalformedPointer(String)
+  InvalidLength(String)
+  InvalidCharacter(String)
+  UnsupportedType(UInt16)
+  ProtocolError(String)
+  IoError(String)
+} derive(Eq, @debug.Debug)
+pub fn DnsError::message(Self) -> String
+
+pub(all) struct Header {
+  mut id : UInt16
+  mut qr : Bool
+  mut opcode : OpCode
+  mut aa : Bool
+  mut tc : Bool
+  mut rd : Bool
+  mut ra : Bool
+  mut z : Byte
+  mut rcode : RCode
+  mut qdcount : UInt16
+  mut ancount : UInt16
+  mut nscount : UInt16
+  mut arcount : UInt16
+} derive(Eq, @debug.Debug)
+pub fn Header::new_query(UInt16) -> Self
+pub fn Header::new_response(UInt16, Bool, RCode, UInt16, UInt16, UInt16, UInt16) -> Self
+
+pub(all) struct Message {
+  header : Header
+  questions : Array[Question]
+  answers : Array[Record]
+  authorities : Array[Record]
+  additionals : Array[Record]
+} derive(Eq, @debug.Debug)
+pub fn Message::add_additional(Self, Record) -> Unit
+pub fn Message::add_answer(Self, Record) -> Unit
+pub fn Message::add_authority(Self, Record) -> Unit
+pub fn Message::new() -> Self
+pub fn Message::new_query(UInt16, String, RType) -> Self
+pub fn Message::new_response(Self, Bool, RCode) -> Self
+pub fn Message::sync_counts(Self) -> Unit
+
+pub(all) enum OpCode {
+  Query
+  IQuery
+  Status
+  Notify
+  Update
+  Unknown(Byte)
+} derive(Eq, @debug.Debug)
+pub fn OpCode::from_wire(Byte) -> Self
+pub fn OpCode::to_wire(Self) -> Byte
+
+pub(all) struct Question {
+  name : String
+  qtype : RType
+  qclass : RClass
+} derive(Eq, @debug.Debug)
+pub fn Question::new(String, RType, RClass) -> Self
+
+pub(all) enum RClass {
+  IN
+  CS
+  CH
+  HS
+  NONE
+  ANY
+  Unknown(UInt16)
+} derive(Eq, @debug.Debug)
+pub fn RClass::from_wire(UInt16) -> Self
+pub fn RClass::to_string(Self) -> String
+pub fn RClass::to_wire(Self) -> UInt16
+
+pub(all) enum RCode {
+  NoError
+  FormErr
+  ServFail
+  NXDomain
+  NotImp
+  Refused
+  YXDomain
+  YXRRSet
+  NXRRSet
+  NotAuth
+  NotZone
+  BadVers
+  Unknown(UInt16)
+} derive(Eq, @debug.Debug)
+pub fn RCode::from_wire(UInt16) -> Self
+pub fn RCode::to_wire(Self) -> UInt16
+
+pub(all) enum RData {
+  A(Byte, Byte, Byte, Byte)
+  AAAA(FixedArray[Byte])
+  CNAME(String)
+  NS(String)
+  PTR(String)
+  MX(UInt16, String)
+  TXT(Array[String])
+  SOA(String, String, UInt, UInt, UInt, UInt, UInt)
+  SRV(UInt16, UInt16, UInt16, String)
+  CAA(Byte, String, String)
+  OPT(UInt16, Byte, Byte, Bool, Bytes)
+  Raw(Bytes)
+} derive(Eq, @debug.Debug)
+pub fn RData::rtype(Self) -> RType
+pub fn RData::to_presentation(Self) -> String
+
+pub(all) enum RType {
+  A
+  NS
+  CNAME
+  SOA
+  PTR
+  MX
+  TXT
+  AAAA
+  SRV
+  OPT
+  AXFR
+  ANY
+  CAA
+  Unknown(UInt16)
+} derive(Eq, @debug.Debug)
+pub fn RType::from_string(String) -> Self?
+pub fn RType::from_wire(UInt16) -> Self
+pub fn RType::to_string(Self) -> String
+pub fn RType::to_wire(Self) -> UInt16
+
+pub(all) struct Record {
+  name : String
+  rtype : RType
+  rclass : RClass
+  ttl : UInt
+  rdata : RData
+} derive(Eq, @debug.Debug)
+pub fn Record::new(String, RType, RClass, UInt, RData) -> Self
+
+// Type aliases
+
+// Traits

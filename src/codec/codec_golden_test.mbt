@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "golden header wire codec roundtrip" {
   let header : @types.Header = {
     id: 0x1234,
@@ -38,6 +39,7 @@ test "golden header wire codec roundtrip" {
   }
 }
 
+///|
 test "golden message full roundtrip with compression" {
   let msg = @types.Message::new_query(0xbeef, "example.com.", @types.RType::A)
   let resp = @types.Message::new_response(msg, true, @types.RCode::NoError)
@@ -48,7 +50,12 @@ test "golden message full roundtrip with compression" {
     @types.RType::A,
     @types.RClass::IN,
     300,
-    @types.RData::A((93).to_byte(), (184).to_byte(), (216).to_byte(), (34).to_byte())
+    @types.RData::A(
+      (93).to_byte(),
+      (184).to_byte(),
+      (216).to_byte(),
+      (34).to_byte(),
+    ),
   )
   resp.add_answer(rec_a)
 
@@ -58,7 +65,7 @@ test "golden message full roundtrip with compression" {
     @types.RType::TXT,
     @types.RClass::IN,
     600,
-    @types.RData::TXT(["v=spf1 -all"])
+    @types.RData::TXT(["v=spf1 -all"]),
   )
   resp.add_answer(rec_txt)
 
@@ -68,7 +75,7 @@ test "golden message full roundtrip with compression" {
     @types.RType::NS,
     @types.RClass::IN,
     86400,
-    @types.RData::NS("ns1.example.com.")
+    @types.RData::NS("ns1.example.com."),
   )
   resp.add_authority(rec_ns)
 
@@ -78,7 +85,12 @@ test "golden message full roundtrip with compression" {
     @types.RType::A,
     @types.RClass::IN,
     86400,
-    @types.RData::A((192).to_byte(), (0).to_byte(), (2).to_byte(), (53).to_byte())
+    @types.RData::A(
+      (192).to_byte(),
+      (0).to_byte(),
+      (2).to_byte(),
+      (53).to_byte(),
+    ),
   )
   resp.add_additional(rec_glue)
 
@@ -108,9 +120,21 @@ test "golden message full roundtrip with compression" {
   }
 }
 
+///|
 test "security: decode malformed truncated bytes safely" {
   // 0 bytes
   assert_true(decode_message(Bytes::from_array([])) is Err(_))
   // 5 bytes (incomplete header)
-  assert_true(decode_message(Bytes::from_array([(1).to_byte(), (2).to_byte(), (3).to_byte(), (4).to_byte(), (5).to_byte()])) is Err(_))
+  assert_true(
+    decode_message(
+      Bytes::from_array([
+        (1).to_byte(),
+        (2).to_byte(),
+        (3).to_byte(),
+        (4).to_byte(),
+        (5).to_byte(),
+      ]),
+    )
+    is Err(_),
+  )
 }

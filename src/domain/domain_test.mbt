@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "domain normalize and case insensitive equality" {
   assert_eq(normalize_fqdn("example.com"), "example.com.")
   assert_eq(normalize_fqdn("example.com."), "example.com.")
@@ -12,6 +13,7 @@ test "domain normalize and case insensitive equality" {
   assert_false(domain_equal("example.com.", "example.org."))
 }
 
+///|
 test "split labels and subdomain hierarchy" {
   let labels = split_labels("mail.server.example.com.")
   assert_eq(labels.length(), 4)
@@ -26,6 +28,7 @@ test "split labels and subdomain hierarchy" {
   assert_false(is_subdomain_of("com.", "example.com."))
 }
 
+///|
 test "domain label wire encoding and decoding" {
   let writer = @bytes_io.ByteWriter::new()
   match encode_domain_labels(writer, "test.local.") {
@@ -43,6 +46,7 @@ test "domain label wire encoding and decoding" {
   }
 }
 
+///|
 test "root domain wire encoding" {
   let writer = @bytes_io.ByteWriter::new()
   match encode_domain_labels(writer, ".") {
@@ -60,15 +64,17 @@ test "root domain wire encoding" {
   }
 }
 
+///|
 test "reject oversized label" {
   let writer = @bytes_io.ByteWriter::new()
   // Create a 64-character label (exceeding 63)
   let long_label = "a0123456789012345678901234567890123456789012345678901234567890123.com."
   match encode_domain_labels(writer, long_label) {
     Ok(_) => panic()
-    Err(e) => match e {
-      @types.MalformedLabel(_) => ()
-      _ => panic()
-    }
+    Err(e) =>
+      match e {
+        @types.MalformedLabel(_) => ()
+        _ => panic()
+      }
   }
 }

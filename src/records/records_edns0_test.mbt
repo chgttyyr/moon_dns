@@ -2,6 +2,7 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
+///|
 test "opt record ttl packing and unpacking" {
   let opt = OptRecord::new(1232, true)
   assert_eq(opt.udp_payload_size, 1232)
@@ -26,7 +27,11 @@ test "opt record ttl packing and unpacking" {
     data: Bytes::from_array([(1).to_byte(), (2).to_byte()]),
   }
   let packed2 = opt2.pack_ttl()
-  let unpacked2 = OptRecord::unpack(4096, packed2, Bytes::from_array([(1).to_byte(), (2).to_byte()]))
+  let unpacked2 = OptRecord::unpack(
+    4096,
+    packed2,
+    Bytes::from_array([(1).to_byte(), (2).to_byte()]),
+  )
   assert_eq(unpacked2.udp_payload_size, 4096)
   assert_eq(unpacked2.extended_rcode.to_int(), 16)
   assert_eq(unpacked2.version.to_int(), 1)
@@ -34,6 +39,7 @@ test "opt record ttl packing and unpacking" {
   assert_eq(unpacked2.data.length(), 2)
 }
 
+///|
 test "opt to record conversion" {
   let opt = OptRecord::new(1472, false)
   let rec = opt.to_record()

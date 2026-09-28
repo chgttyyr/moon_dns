@@ -11,7 +11,7 @@ on:
 
 jobs:
   test-and-verify:
-    name: "Build, Test & Wasm Verification"
+    name: "Strict Check, Native and Wasm Verification"
     runs-on: ubuntu-latest
 
     permissions:
@@ -35,13 +35,33 @@ jobs:
         run: |
           moon version --all
 
-      - name: MoonBit Type Check (moon check)
+      - name: Format Check
         run: |
-          moon check
+          moon fmt --check
 
-      - name: Native Automated Tests (moon test)
+      - name: Strict Wasm-Compatible Type Check
         run: |
-          moon test
+          moon check --deny-warn
+
+      - name: Strict Native Type Check
+        run: |
+          moon check --target native --deny-warn
+
+      - name: Native Build
+        run: |
+          moon build --target native
+
+      - name: Strict Native Automated Tests
+        run: |
+          moon test --target native --deny-warn
+
+      - name: Validate Example Zone
+        run: |
+          moon run --target native cmd/moondns -- check -z examples/example.com.zone -o example.com.
+
+      - name: Strict Wasm-Compatible Tests
+        run: |
+          moon test --deny-warn
 
       - name: WebAssembly Tests (moon test --target wasm)
         run: |

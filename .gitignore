@@ -1,6 +1,7 @@
 _build
 target
 .mooncaches
+.mooncakes
 *.log
 *.exe
 .DS_Store

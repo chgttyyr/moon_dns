@@ -2,13 +2,15 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| MoonDNS Release Version String
+///|
+/// MoonDNS Release Version String
 pub const VERSION : String = "0.1.0"
 
-///| Public facade to create a fully initialized DnsServer from a BIND master-file zone text
+///|
+/// Public facade to create a fully initialized DnsServer from a BIND master-file zone text
 pub fn create_server_from_zone_text(
   origin : String,
-  zone_text : String
+  zone_text : String,
 ) -> Result[@transport.DnsServer, @types.DnsError] {
   let zone = match @zone.parse_zone_text(origin, zone_text) {
     Ok(z) => z
@@ -17,11 +19,12 @@ pub fn create_server_from_zone_text(
   Ok(@transport.DnsServer::new(zone))
 }
 
-///| High-level helper to query an in-memory DnsServer directly and obtain answered records
+///|
+/// High-level helper to query an in-memory DnsServer directly and obtain answered records
 pub fn quick_resolve(
   server : @transport.DnsServer,
   domain : String,
-  rtype : @types.RType
+  rtype : @types.RType,
 ) -> Result[Array[@types.Record], @types.DnsError] {
   let query = @types.Message::new_query(0x1337, domain, rtype)
   let raw_req = @codec.encode_message(query)
@@ -36,6 +39,7 @@ pub fn quick_resolve(
   Ok(resp_msg.answers)
 }
 
+///|
 fn hex_nibble_to_char(n : Int) -> Char {
   if n < 10 {
     Int::unsafe_to_char(48 + n)
@@ -44,6 +48,7 @@ fn hex_nibble_to_char(n : Int) -> Char {
   }
 }
 
+///|
 fn char_to_hex_nibble(c : Int) -> Int {
   if c >= 48 && c <= 57 {
     c - 48
@@ -56,7 +61,8 @@ fn char_to_hex_nibble(c : Int) -> Int {
   }
 }
 
-///| Helper to convert binary Bytes into a lowercase hexadecimal string
+///|
+/// Helper to convert binary Bytes into a lowercase hexadecimal string
 pub fn bytes_to_hex(bytes : Bytes) -> String {
   let buf = StringBuilder()
   for i = 0; i < bytes.length(); i = i + 1 {
@@ -69,7 +75,8 @@ pub fn bytes_to_hex(bytes : Bytes) -> String {
   buf.to_string()
 }
 
-///| Helper to convert a hexadecimal string into binary Bytes
+///|
+/// Helper to convert a hexadecimal string into binary Bytes
 pub fn hex_to_bytes(hex : String) -> Bytes {
   let len = hex.length()
   let writer = @bytes_io.ByteWriter::new()
@@ -84,18 +91,20 @@ pub fn hex_to_bytes(hex : String) -> Bytes {
   writer.to_bytes()
 }
 
-///| Direct raw DNS packet resolution over UDP pipeline
+///|
+/// Direct raw DNS packet resolution over UDP pipeline
 pub fn resolve_raw_packet(
   server : @transport.DnsServer,
-  raw_req : Bytes
+  raw_req : Bytes,
 ) -> Result[Bytes, @types.DnsError] {
   server.process_udp(raw_req)
 }
 
-///| WebAssembly/JS-friendly hex packet resolution: takes hex string, returns response hex string
+///|
+/// WebAssembly/JS-friendly hex packet resolution: takes hex string, returns response hex string
 pub fn resolve_hex_packet(
   server : @transport.DnsServer,
-  hex_req : String
+  hex_req : String,
 ) -> Result[String, @types.DnsError] {
   let req_bytes = hex_to_bytes(hex_req)
   match server.process_udp(req_bytes) {

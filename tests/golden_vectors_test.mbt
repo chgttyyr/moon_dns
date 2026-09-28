@@ -2,12 +2,17 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Golden Vector 1: Standard query for "a.gtld-servers.net." type A
+///|
+/// Golden Vector 1: Standard query for "a.gtld-servers.net." type A
 test "golden vector standard a query hex comparison" {
   let writer = @bytes_io.ByteWriter::new()
   let header = @types.Header::new_query(0x4321)
   @codec.encode_header(writer, header)
-  let q = @types.Question::new("a.gtld-servers.net.", @types.RType::A, @types.RClass::IN)
+  let q = @types.Question::new(
+    "a.gtld-servers.net.",
+    @types.RType::A,
+    @types.RClass::IN,
+  )
   let cmap = @compression.CompressionMap::new()
   let _ = @codec.encode_question(writer, cmap, q)
   let wire = writer.to_bytes()
@@ -33,56 +38,69 @@ test "golden vector standard a query hex comparison" {
   }
 }
 
-///| Golden Vector 2: Comprehensive multi-record response with compression
+///|
+/// Golden Vector 2: Comprehensive multi-record response with compression
 test "golden vector authoritative response with mx, txt and soa" {
   let zone = @zone.Zone::new("corp.example.org.", 3600)
 
   // 1. Apex SOA
-  zone.add_record(@types.Record::new(
-    "corp.example.org.",
-    @types.RType::SOA,
-    @types.RClass::IN,
-    86400,
-    @types.RData::SOA(
-      "master.corp.example.org.",
-      "admin.corp.example.org.",
-      2026092005,
-      14400,
-      3600,
-      2419200,
-      1800
-    )
-  ))
+  zone.add_record(
+    @types.Record::new(
+      "corp.example.org.",
+      @types.RType::SOA,
+      @types.RClass::IN,
+      86400,
+      @types.RData::SOA(
+        "master.corp.example.org.", "admin.corp.example.org.", 2026092005, 14400,
+        3600, 2419200, 1800,
+      ),
+    ),
+  )
 
   // 2. Apex MX
-  zone.add_record(@types.Record::new(
-    "corp.example.org.",
-    @types.RType::MX,
-    @types.RClass::IN,
-    3600,
-    @types.RData::MX(10, "smtp1.corp.example.org.")
-  ))
+  zone.add_record(
+    @types.Record::new(
+      "corp.example.org.",
+      @types.RType::MX,
+      @types.RClass::IN,
+      3600,
+      @types.RData::MX(10, "smtp1.corp.example.org."),
+    ),
+  )
 
   // 3. Apex TXT (SPF record)
-  zone.add_record(@types.Record::new(
-    "corp.example.org.",
-    @types.RType::TXT,
-    @types.RClass::IN,
-    3600,
-    @types.RData::TXT(["v=spf1 include:_spf.corp.example.org ~all"])
-  ))
+  zone.add_record(
+    @types.Record::new(
+      "corp.example.org.",
+      @types.RType::TXT,
+      @types.RClass::IN,
+      3600,
+      @types.RData::TXT(["v=spf1 include:_spf.corp.example.org ~all"]),
+    ),
+  )
 
   // 4. Server A record
-  zone.add_record(@types.Record::new(
-    "smtp1.corp.example.org.",
-    @types.RType::A,
-    @types.RClass::IN,
-    3600,
-    @types.RData::A((198).to_byte(), (51).to_byte(), (100).to_byte(), (25).to_byte())
-  ))
+  zone.add_record(
+    @types.Record::new(
+      "smtp1.corp.example.org.",
+      @types.RType::A,
+      @types.RClass::IN,
+      3600,
+      @types.RData::A(
+        (198).to_byte(),
+        (51).to_byte(),
+        (100).to_byte(),
+        (25).to_byte(),
+      ),
+    ),
+  )
 
   // Execute MX query
-  let query = @types.Message::new_query(0x7777, "corp.example.org.", @types.RType::MX)
+  let query = @types.Message::new_query(
+    0x7777,
+    "corp.example.org.",
+    @types.RType::MX,
+  )
   let resp = @resolver.build_response(query, zone)
 
   // Assert RFC semantics
@@ -113,7 +131,8 @@ test "golden vector authoritative response with mx, txt and soa" {
   }
 }
 
-///| Golden Vector 3: DNS Record Roundtrip Verification Matrix
+///|
+/// Golden Vector 3: DNS Record Roundtrip Verification Matrix
 test "golden matrix across all supported record types" {
   let writer = @bytes_io.ByteWriter::new()
   let cmap = @compression.CompressionMap::new()
@@ -123,19 +142,43 @@ test "golden matrix across all supported record types" {
   aaaa_arr[0] = (0x26).to_byte()
   aaaa_arr[1] = (0x06).to_byte()
   aaaa_arr[15] = (0x01).to_byte()
-  let rec_aaaa = @types.Record::new("ipv6.example.com.", @types.RType::AAAA, @types.RClass::IN, 300, @types.RData::AAAA(aaaa_arr))
+  let rec_aaaa = @types.Record::new(
+    "ipv6.example.com.",
+    @types.RType::AAAA,
+    @types.RClass::IN,
+    300,
+    @types.RData::AAAA(aaaa_arr),
+  )
   let _ = @codec.encode_record(writer, cmap, rec_aaaa)
 
   // 2. PTR
-  let rec_ptr = @types.Record::new("1.0.0.127.in-addr.arpa.", @types.RType::PTR, @types.RClass::IN, 3600, @types.RData::PTR("localhost."))
+  let rec_ptr = @types.Record::new(
+    "1.0.0.127.in-addr.arpa.",
+    @types.RType::PTR,
+    @types.RClass::IN,
+    3600,
+    @types.RData::PTR("localhost."),
+  )
   let _ = @codec.encode_record(writer, cmap, rec_ptr)
 
   // 3. SRV
-  let rec_srv = @types.Record::new("_sip._tcp.example.com.", @types.RType::SRV, @types.RClass::IN, 300, @types.RData::SRV(10, 20, 5060, "sipserver.example.com."))
+  let rec_srv = @types.Record::new(
+    "_sip._tcp.example.com.",
+    @types.RType::SRV,
+    @types.RClass::IN,
+    300,
+    @types.RData::SRV(10, 20, 5060, "sipserver.example.com."),
+  )
   let _ = @codec.encode_record(writer, cmap, rec_srv)
 
   // 4. CAA
-  let rec_caa = @types.Record::new("example.com.", @types.RType::CAA, @types.RClass::IN, 3600, @types.RData::CAA((0).to_byte(), "issue", "digicert.com"))
+  let rec_caa = @types.Record::new(
+    "example.com.",
+    @types.RType::CAA,
+    @types.RClass::IN,
+    3600,
+    @types.RData::CAA((0).to_byte(), "issue", "digicert.com"),
+  )
   let _ = @codec.encode_record(writer, cmap, rec_caa)
 
   let wire = writer.to_bytes()

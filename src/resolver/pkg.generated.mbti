@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "chgttyyr/moon_dns/src/resolver"
+
+import {
+  "chgttyyr/moon_dns/src/records",
+  "chgttyyr/moon_dns/src/types",
+  "chgttyyr/moon_dns/src/zone",
+}
+
+// Values
+pub fn build_response(@types.Message, @zone.Zone) -> @types.Message
+
+pub fn find_opt_record(@types.Message) -> @records.OptRecord?
+
+pub fn truncate_response(@types.Message, Int) -> Bytes
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

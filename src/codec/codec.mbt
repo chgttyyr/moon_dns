@@ -2,10 +2,11 @@
 // Copyright 2026 chgttyyr
 // Licensed under the Apache-2.0 License.
 
-///| Encode a 12-byte fixed DNS header into wire format
+///|
+/// Encode a 12-byte fixed DNS header into wire format
 pub fn encode_header(
   writer : @bytes_io.ByteWriter,
-  header : @types.Header
+  header : @types.Header,
 ) -> Unit {
   writer.write_uint16(header.id)
 
@@ -14,7 +15,11 @@ pub fn encode_header(
   let aa_bit = if header.aa { 1 } else { 0 }
   let tc_bit = if header.tc { 1 } else { 0 }
   let rd_bit = if header.rd { 1 } else { 0 }
-  let b2 = (qr_bit << 7) | (op_bits << 3) | (aa_bit << 2) | (tc_bit << 1) | rd_bit
+  let b2 = (qr_bit << 7) |
+    (op_bits << 3) |
+    (aa_bit << 2) |
+    (tc_bit << 1) |
+    rd_bit
   writer.write_byte(b2.to_byte())
 
   let ra_bit = if header.ra { 1 } else { 0 }
@@ -29,9 +34,10 @@ pub fn encode_header(
   writer.write_uint16(header.arcount)
 }
 
-///| Decode a 12-byte fixed DNS header from wire format
+///|
+/// Decode a 12-byte fixed DNS header from wire format
 pub fn decode_header(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[@types.Header, @types.DnsError] {
   let id = match reader.read_uint16() {
     Ok(v) => v
@@ -92,11 +98,12 @@ pub fn decode_header(
   })
 }
 
-///| Encode a single Question entry into wire format
+///|
+/// Encode a single Question entry into wire format
 pub fn encode_question(
   writer : @bytes_io.ByteWriter,
   cmap : @compression.CompressionMap,
-  q : @types.Question
+  q : @types.Question,
 ) -> Result[Unit, @types.DnsError] {
   let res = @compression.encode_domain_compressed(writer, cmap, q.name)
   match res {
@@ -108,9 +115,10 @@ pub fn encode_question(
   Ok(())
 }
 
-///| Decode a single Question entry from wire format
+///|
+/// Decode a single Question entry from wire format
 pub fn decode_question(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[@types.Question, @types.DnsError] {
   let name = match @compression.decode_domain_compressed(reader) {
     Ok(n) => n
@@ -124,14 +132,21 @@ pub fn decode_question(
     Ok(c) => c
     Err(e) => return Err(e)
   }
-  Ok(@types.Question::new(name, @types.RType::from_wire(qtype_code), @types.RClass::from_wire(qclass_code)))
+  Ok(
+    @types.Question::new(
+      name,
+      @types.RType::from_wire(qtype_code),
+      @types.RClass::from_wire(qclass_code),
+    ),
+  )
 }
 
-///| Encode a Resource Record into wire format
+///|
+/// Encode a Resource Record into wire format
 pub fn encode_record(
   writer : @bytes_io.ByteWriter,
   cmap : @compression.CompressionMap,
-  rec : @types.Record
+  rec : @types.Record,
 ) -> Result[Unit, @types.DnsError] {
   let res_name = @compression.encode_domain_compressed(writer, cmap, rec.name)
   match res_name {
@@ -148,7 +163,8 @@ pub fn encode_record(
   let rdata_start = writer.length()
 
   match rec.rdata {
-    @types.RData::A(b0, b1, b2, b3) => @records.encode_rdata_a(writer, b0, b1, b2, b3)
+    @types.RData::A(b0, b1, b2, b3) =>
+      @records.encode_rdata_a(writer, b0, b1, b2, b3)
     @types.RData::AAAA(arr) => {
       let r = @records.encode_rdata_aaaa(writer, arr)
       match r {
@@ -192,7 +208,9 @@ pub fn encode_record(
       }
     }
     @types.RData::SOA(mname, rname, ser, refr, ret, exp, min) => {
-      let r = @records.encode_rdata_soa(writer, mname, rname, ser, refr, ret, exp, min)
+      let r = @records.encode_rdata_soa(
+        writer, mname, rname, ser, refr, ret, exp, min,
+      )
       match r {
         Ok(_) => ()
         Err(e) => return Err(e)
@@ -212,12 +230,8 @@ pub fn encode_record(
         Err(e) => return Err(e)
       }
     }
-    @types.RData::OPT(_, _, _, _, data) => {
-      writer.write_bytes(data)
-    }
-    @types.RData::Raw(bytes) => {
-      writer.write_bytes(bytes)
-    }
+    @types.RData::OPT(_, _, _, _, data) => writer.write_bytes(data)
+    @types.RData::Raw(bytes) => writer.write_bytes(bytes)
   }
 
   let actual_rdlen = writer.length() - rdata_start
@@ -229,9 +243,10 @@ pub fn encode_record(
   Ok(())
 }
 
-///| Decode a Resource Record from wire format
+///|
+/// Decode a Resource Record from wire format
 pub fn decode_record(
-  reader : @bytes_io.ByteReader
+  reader : @bytes_io.ByteReader,
 ) -> Result[@types.Record, @types.DnsError] {
   let name = match @compression.decode_domain_compressed(reader) {
     Ok(n) => n
@@ -257,46 +272,56 @@ pub fn decode_record(
   }
 
   let rdata : @types.RData = match rtype {
-    @types.RType::A => match @records.decode_rdata_a(reader, rdlength) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::AAAA => match @records.decode_rdata_aaaa(reader, rdlength) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::CNAME => match @records.decode_rdata_cname(reader) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::NS => match @records.decode_rdata_ns(reader) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::PTR => match @records.decode_rdata_ptr(reader) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::MX => match @records.decode_rdata_mx(reader) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::TXT => match @records.decode_rdata_txt(reader, rdlength) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::SOA => match @records.decode_rdata_soa(reader) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::SRV => match @records.decode_rdata_srv(reader) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
-    @types.RType::CAA => match @records.decode_rdata_caa(reader, rdlength) {
-      Ok(rd) => rd
-      Err(e) => return Err(e)
-    }
+    @types.RType::A =>
+      match @records.decode_rdata_a(reader, rdlength) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::AAAA =>
+      match @records.decode_rdata_aaaa(reader, rdlength) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::CNAME =>
+      match @records.decode_rdata_cname(reader) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::NS =>
+      match @records.decode_rdata_ns(reader) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::PTR =>
+      match @records.decode_rdata_ptr(reader) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::MX =>
+      match @records.decode_rdata_mx(reader) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::TXT =>
+      match @records.decode_rdata_txt(reader, rdlength) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::SOA =>
+      match @records.decode_rdata_soa(reader) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::SRV =>
+      match @records.decode_rdata_srv(reader) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
+    @types.RType::CAA =>
+      match @records.decode_rdata_caa(reader, rdlength) {
+        Ok(rd) => rd
+        Err(e) => return Err(e)
+      }
     @types.RType::OPT => {
       let raw_opt = match reader.read_bytes(rdlength.to_int()) {
         Ok(bs) => bs
@@ -323,7 +348,8 @@ pub fn decode_record(
   Ok(@types.Record::new(name, rtype, rclass, ttl, rdata))
 }
 
-///| Encode a complete DNS Message into wire format bytes
+///|
+/// Encode a complete DNS Message into wire format bytes
 pub fn encode_message(msg : @types.Message) -> Bytes {
   let writer = @bytes_io.ByteWriter::new()
   let cmap = @compression.CompressionMap::new()
@@ -348,10 +374,15 @@ pub fn encode_message(msg : @types.Message) -> Bytes {
   writer.to_bytes()
 }
 
-///| Decode a complete DNS Message from wire format bytes (strictly returns Err on malformed input, never panics)
+///|
+/// Decode a complete DNS Message from wire format bytes (strictly returns Err on malformed input, never panics)
 pub fn decode_message(bytes : Bytes) -> Result[@types.Message, @types.DnsError] {
   if bytes.length() < 12 {
-    return Err(@types.BufferUnderflow("DNS packet shorter than 12-byte header: " + bytes.length().to_string()))
+    return Err(
+      @types.BufferUnderflow(
+        "DNS packet shorter than 12-byte header: " + bytes.length().to_string(),
+      ),
+    )
   }
   let reader = @bytes_io.ByteReader::new(bytes)
   let header = match decode_header(reader) {
@@ -395,11 +426,5 @@ pub fn decode_message(bytes : Bytes) -> Result[@types.Message, @types.DnsError] 
     additionals.push(rec)
   }
 
-  Ok({
-    header,
-    questions,
-    answers,
-    authorities,
-    additionals,
-  })
+  Ok({ header, questions, answers, authorities, additionals, })
 }
