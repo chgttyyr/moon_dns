@@ -40,16 +40,16 @@ pub fn quick_resolve(
 }
 
 ///|
-fn hex_nibble_to_char(n : Int) -> Char {
+fn hex_nibble_to_char(n : Int32) -> Char {
   if n < 10 {
-    Int::unsafe_to_char(48 + n)
+    Int32::unsafe_to_char(48 + n)
   } else {
-    Int::unsafe_to_char(97 + n - 10)
+    Int32::unsafe_to_char(97 + n - 10)
   }
 }
 
 ///|
-fn char_to_hex_nibble(c : Int) -> Int {
+fn char_to_hex_nibble(c : Int32) -> Int32 {
   if c >= 48 && c <= 57 {
     c - 48
   } else if c >= 97 && c <= 102 {

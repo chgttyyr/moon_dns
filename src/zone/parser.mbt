@@ -5,7 +5,7 @@
 ///|
 priv struct ZoneLogicalRecord {
   tokens : Array[String]
-  start_line : Int
+  start_line : Int32
   owner_omitted : Bool
 }
 
@@ -24,14 +24,14 @@ fn tokenize_line(line : String) -> Array[String] {
     }
     if ch == 34 { // '"'
       in_quotes = !in_quotes
-      current.write_char(Int::unsafe_to_char(ch))
+      current.write_char(Int32::unsafe_to_char(ch))
     } else if (ch == 32 || ch == 9) && !in_quotes { // Space or Tab
       if current.to_string().length() > 0 {
         tokens.push(current.to_string())
         current = StringBuilder()
       }
     } else {
-      current.write_char(Int::unsafe_to_char(ch))
+      current.write_char(Int32::unsafe_to_char(ch))
     }
     i = i + 1
   }
@@ -55,7 +55,7 @@ fn scan_logical_records(
       lines.push(line_buf.to_string())
       line_buf = StringBuilder()
     } else if ch != 13 {
-      line_buf.write_char(Int::unsafe_to_char(ch))
+      line_buf.write_char(Int32::unsafe_to_char(ch))
     }
   }
   if line_buf.to_string().length() > 0 || text.length() == 0 {
@@ -101,7 +101,7 @@ fn scan_logical_records(
 
       if ch == 34 { // '"'
         in_quotes = !in_quotes
-        logical_buf.write_char(Int::unsafe_to_char(ch))
+        logical_buf.write_char(Int32::unsafe_to_char(ch))
       } else if !in_quotes && ch == 40 { // '('
         paren_depth = paren_depth + 1
         logical_buf.write_char(' ')
@@ -118,7 +118,7 @@ fn scan_logical_records(
         paren_depth = paren_depth - 1
         logical_buf.write_char(' ')
       } else {
-        logical_buf.write_char(Int::unsafe_to_char(ch))
+        logical_buf.write_char(Int32::unsafe_to_char(ch))
       }
       i = i + 1
     }
@@ -164,8 +164,8 @@ fn scan_logical_records(
 
 ///|
 /// Parse an integer string into UInt
-fn parse_uint(s : String) -> UInt? {
-  let mut val : UInt = 0
+fn parse_uint(s : String) -> UInt32? {
+  let mut val : UInt32 = 0
   let trimmed = s.trim().to_owned()
   if trimmed.length() == 0 {
     return None
@@ -187,7 +187,7 @@ fn parse_uint(s : String) -> UInt? {
 
 ///|
 /// Parse a DNS TTL as seconds, accepting compound units such as 1h30m.
-fn parse_ttl(s : String) -> UInt? {
+fn parse_ttl(s : String) -> UInt32? {
   let text = s.trim().to_owned().to_lower()
   if text.length() == 0 {
     return None
@@ -197,7 +197,7 @@ fn parse_ttl(s : String) -> UInt? {
     None => ()
   }
 
-  let mut total : UInt = 0
+  let mut total : UInt32 = 0
   let mut index = 0
   while index < text.length() {
     let number_start = index
@@ -216,7 +216,7 @@ fn parse_ttl(s : String) -> UInt? {
       Some(value) => value
       None => return None
     }
-    let factor : UInt = match text[index].to_int() {
+    let factor : UInt32 = match text[index].to_int() {
       119 => 604800 // w
       100 => 86400 // d
       104 => 3600 // h
@@ -248,7 +248,7 @@ fn parse_uint16(s : String) -> UInt16? {
 
 ///|
 /// Attach a source line to an error produced while parsing one Zone record.
-fn zone_line_error(line : Int, message : String) -> @types.DnsError {
+fn zone_line_error(line : Int32, message : String) -> @types.DnsError {
   @types.ProtocolError("Line " + line.to_string() + ": " + message)
 }
 
@@ -289,7 +289,7 @@ pub fn parse_zone_text(
 ) -> Result[Zone, @types.DnsError] {
   let apex_origin = @domain.normalize_fqdn(initial_origin)
   let mut current_origin = apex_origin
-  let mut current_ttl : UInt = 3600
+  let mut current_ttl : UInt32 = 3600
   let mut last_owner = apex_origin
   let zone = Zone::new(apex_origin, current_ttl)
   let logical_records = match scan_logical_records(text) {

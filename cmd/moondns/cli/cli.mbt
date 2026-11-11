@@ -5,7 +5,7 @@
 ///|
 /// Native command line operations supported by MoonDNS.
 pub(all) enum CLICommand {
-  Serve(String, String, String, UInt16, Int)
+  Serve(String, String, String, UInt16, Int32)
   Query(String, UInt16, String, @types.RType)
   Check(String, String)
   Help
@@ -13,7 +13,7 @@ pub(all) enum CLICommand {
 
 ///|
 /// Parse a bounded unsigned decimal command-line value.
-fn parse_decimal(text : String, maximum : Int) -> Int? {
+fn parse_decimal(text : String, maximum : Int32) -> Int32? {
   if text.length() == 0 {
     return None
   }

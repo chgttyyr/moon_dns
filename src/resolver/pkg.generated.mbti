@@ -12,7 +12,7 @@ pub fn build_response(@types.Message, @zone.Zone) -> @types.Message
 
 pub fn find_opt_record(@types.Message) -> @records.OptRecord?
 
-pub fn truncate_response(@types.Message, Int) -> Bytes
+pub fn truncate_response(@types.Message, Int32) -> Bytes
 
 // Errors
 

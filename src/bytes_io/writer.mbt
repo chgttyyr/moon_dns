@@ -16,7 +16,7 @@ pub fn ByteWriter::new() -> ByteWriter {
 
 ///|
 /// Current length of accumulated bytes
-pub fn ByteWriter::length(self : ByteWriter) -> Int {
+pub fn ByteWriter::length(self : ByteWriter) -> Int32 {
   self.buf.length()
 }
 
@@ -44,7 +44,7 @@ pub fn ByteWriter::write_uint16(self : ByteWriter, val : UInt16) -> Unit {
 
 ///|
 /// Write a big-endian 32-bit unsigned integer
-pub fn ByteWriter::write_uint32(self : ByteWriter, val : UInt) -> Unit {
+pub fn ByteWriter::write_uint32(self : ByteWriter, val : UInt32) -> Unit {
   let b0 = ((val >> 24) & 0xff).to_byte()
   let b1 = ((val >> 16) & 0xff).to_byte()
   let b2 = ((val >> 8) & 0xff).to_byte()
@@ -78,7 +78,7 @@ pub fn ByteWriter::write_fixed_bytes(
 /// Overwrite a 16-bit unsigned integer at a previously written position (patching)
 pub fn ByteWriter::patch_uint16(
   self : ByteWriter,
-  pos : Int,
+  pos : Int32,
   val : UInt16,
 ) -> Result[Unit, @types.DnsError] {
   if pos < 0 || pos + 2 > self.buf.length() {

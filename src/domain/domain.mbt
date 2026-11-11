@@ -4,7 +4,7 @@
 
 ///|
 /// Convert an ASCII code point to lowercase
-pub fn code_to_lower(code : Int) -> Int {
+pub fn code_to_lower(code : Int32) -> Int32 {
   if code >= 65 && code <= 90 {
     code + 32
   } else {
@@ -61,7 +61,7 @@ pub fn split_labels(domain : String) -> Array[String] {
       result.push(current.to_string())
       current = StringBuilder()
     } else {
-      current.write_char(Int::unsafe_to_char(ch))
+      current.write_char(Int32::unsafe_to_char(ch))
     }
   }
   result.push(current.to_string())
@@ -170,7 +170,7 @@ pub fn decode_domain_labels(
       Err(e) => return Err(e)
     }
     for i = 0; i < len; i = i + 1 {
-      buf.write_char(Int::unsafe_to_char(label_bytes[i].to_int()))
+      buf.write_char(Int32::unsafe_to_char(label_bytes[i].to_int()))
     }
   }
   Ok(buf.to_string())

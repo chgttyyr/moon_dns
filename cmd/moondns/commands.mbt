@@ -42,7 +42,7 @@ async fn start_zone_server(
   origin : String,
   host : String,
   port : UInt16,
-  max_connections : Int,
+  max_connections : Int32,
 ) -> Unit {
   let zone = load_zone(path, origin)
   let errors = zone.validate()

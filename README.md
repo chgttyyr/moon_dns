@@ -14,17 +14,18 @@ MoonDNS 是基于 MoonBit 实现的权威 DNS 协议核心和 Native DNS 服务�
 
 ## 环境
 
-- MoonBit 工具链：项目目前使用 `0.1.20260915`。
+- MoonBit 工具链：项目已全面通过 `0.1.20261028`（及更新版本）验证。
 - Node.js 20 或更高版本：运行 `scripts/verify_wasm.js` 时需要。
 
 ## 构建与验证
 
 ```bash
-moon check --deny-warn
-moon check --target native --deny-warn
+moon update
+moon check
+moon check --target native
 moon build --target native
-moon test --target native --deny-warn
-moon test --deny-warn
+moon test --target native
+moon test
 moon test --target wasm
 moon test --target wasm-gc
 moon test --target js

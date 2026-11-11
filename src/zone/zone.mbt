@@ -17,14 +17,14 @@ pub(all) enum LookupResult {
 /// Zone database holding records for an authoritative apex origin
 pub(all) struct Zone {
   mut origin : String
-  mut default_ttl : UInt
+  mut default_ttl : UInt32
   mut soa : @types.Record?
   records : Array[@types.Record]
 } derive(Debug)
 
 ///|
 /// Create an empty Zone for a given origin domain
-pub fn Zone::new(origin : String, default_ttl : UInt) -> Zone {
+pub fn Zone::new(origin : String, default_ttl : UInt32) -> Zone {
   {
     origin: @domain.normalize_fqdn(origin),
     default_ttl,
@@ -51,7 +51,7 @@ pub fn Zone::add_record(self : Zone, record : @types.Record) -> Unit {
 
 ///|
 /// Return the number of records stored in this zone.
-pub fn Zone::record_count(self : Zone) -> Int {
+pub fn Zone::record_count(self : Zone) -> Int32 {
   self.records.length()
 }
 

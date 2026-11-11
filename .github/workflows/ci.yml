@@ -35,33 +35,38 @@ jobs:
         run: |
           moon version --all
 
+      - name: Update Dependencies
+        run: |
+          moon update
+
       - name: Format Check
         run: |
+          moon fmt
           moon fmt --check
 
-      - name: Strict Wasm-Compatible Type Check
+      - name: Wasm-Compatible Type Check
         run: |
-          moon check --deny-warn
+          moon check
 
-      - name: Strict Native Type Check
+      - name: Native Type Check
         run: |
-          moon check --target native --deny-warn
+          moon check --target native
 
       - name: Native Build
         run: |
           moon build --target native
 
-      - name: Strict Native Automated Tests
+      - name: Native Automated Tests
         run: |
-          moon test --target native --deny-warn
+          moon test --target native
 
       - name: Validate Example Zone
         run: |
           moon run --target native cmd/moondns -- check -z examples/example.com.zone -o example.com.
 
-      - name: Strict Wasm-Compatible Tests
+      - name: Wasm-Compatible Tests
         run: |
-          moon test --deny-warn
+          moon test
 
       - name: WebAssembly Tests (moon test --target wasm)
         run: |

@@ -4,7 +4,7 @@
 
 ///|
 /// Safely truncate a DNS response message to fit within max_size octets (RFC 1035 Section 4.1.1, RFC 6891)
-pub fn truncate_response(resp : @types.Message, max_size : Int) -> Bytes {
+pub fn truncate_response(resp : @types.Message, max_size : Int32) -> Bytes {
   let initial_bytes = @codec.encode_message(resp)
   if initial_bytes.length() <= max_size {
     return initial_bytes

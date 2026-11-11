@@ -12,7 +12,7 @@ pub(all) enum RData {
   PTR(String)
   MX(UInt16, String)
   TXT(Array[String])
-  SOA(String, String, UInt, UInt, UInt, UInt, UInt)
+  SOA(String, String, UInt32, UInt32, UInt32, UInt32, UInt32)
   SRV(UInt16, UInt16, UInt16, String)
   CAA(Byte, String, String)
   OPT(UInt16, Byte, Byte, Bool, Bytes)
@@ -129,7 +129,7 @@ pub(all) struct Record {
   name : String // Domain name owner of this record
   rtype : RType // Record type
   rclass : RClass // Record class (typically IN)
-  ttl : UInt // Time to live in seconds
+  ttl : UInt32 // Time to live in seconds
   rdata : RData // Type-specific payload
 } derive(Debug, Eq)
 
@@ -139,7 +139,7 @@ pub fn Record::new(
   name : String,
   rtype : RType,
   rclass : RClass,
-  ttl : UInt,
+  ttl : UInt32,
   rdata : RData,
 ) -> Record {
   { name, rtype, rclass, ttl, rdata, }

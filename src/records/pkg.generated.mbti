@@ -42,7 +42,7 @@ pub fn encode_rdata_ns(@bytes_io.ByteWriter, String) -> Result[Unit, @types.DnsE
 
 pub fn encode_rdata_ptr(@bytes_io.ByteWriter, String) -> Result[Unit, @types.DnsError]
 
-pub fn encode_rdata_soa(@bytes_io.ByteWriter, String, String, UInt, UInt, UInt, UInt, UInt) -> Result[Unit, @types.DnsError]
+pub fn encode_rdata_soa(@bytes_io.ByteWriter, String, String, UInt32, UInt32, UInt32, UInt32, UInt32) -> Result[Unit, @types.DnsError]
 
 pub fn encode_rdata_srv(@bytes_io.ByteWriter, UInt16, UInt16, UInt16, String) -> Result[Unit, @types.DnsError]
 
@@ -63,9 +63,9 @@ pub(all) struct OptRecord {
   data : Bytes
 } derive(Eq, @debug.Debug)
 pub fn OptRecord::new(UInt16, Bool) -> Self
-pub fn OptRecord::pack_ttl(Self) -> UInt
+pub fn OptRecord::pack_ttl(Self) -> UInt32
 pub fn OptRecord::to_record(Self) -> @types.Record
-pub fn OptRecord::unpack(UInt16, UInt, Bytes) -> Self
+pub fn OptRecord::unpack(UInt16, UInt32, Bytes) -> Self
 
 // Type aliases
 

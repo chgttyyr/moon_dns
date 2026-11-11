@@ -4,7 +4,7 @@
 
 ///|
 /// Maximum allowed pointer decompression jumps to prevent recursive amplification DoS
-pub const MAX_POINTER_JUMPS : Int = 128
+pub const MAX_POINTER_JUMPS : Int32 = 128
 
 ///|
 /// Decode a compressed domain name from the stream with four-layer malicious pointer defenses.
@@ -18,7 +18,7 @@ pub fn decode_domain_compressed(
   let mut saved_resume_pos = -1
 
   // Set of offsets visited during pointer chasing to detect circular references
-  let visited_offsets : Array[Int] = []
+  let visited_offsets : Array[Int32] = []
 
   let total_len = reader.total_length()
 
@@ -159,7 +159,7 @@ pub fn decode_domain_compressed(
       Err(e) => return Err(e)
     }
     for i = 0; i < label_len; i = i + 1 {
-      buf.write_char(Int::unsafe_to_char(label_bytes[i].to_int()))
+      buf.write_char(Int32::unsafe_to_char(label_bytes[i].to_int()))
     }
   }
 

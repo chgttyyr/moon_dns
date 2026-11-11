@@ -5,7 +5,7 @@
 ///|
 /// Parse a dotted-quad IPv4 string (e.g. "192.0.2.1") into RData::A
 pub fn parse_ipv4(ip_str : String) -> Result[@types.RData, @types.DnsError] {
-  let parts : Array[Int] = []
+  let parts : Array[Int32] = []
   let mut current = 0
   let mut has_digit = false
   let trimmed = ip_str.trim().to_owned()

@@ -15,7 +15,7 @@ pub fn usage() -> String
 
 // Types and methods
 pub(all) enum CLICommand {
-  Serve(String, String, String, UInt16, Int)
+  Serve(String, String, String, UInt16, Int32)
   Query(String, UInt16, String, @types.RType)
   Check(String, String)
   Help

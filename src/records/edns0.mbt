@@ -26,10 +26,10 @@ pub fn OptRecord::new(udp_payload_size : UInt16, do_flag : Bool) -> OptRecord {
 
 ///|
 /// Pack OptRecord header attributes into the standard 32-bit TTL integer
-pub fn OptRecord::pack_ttl(self : OptRecord) -> UInt {
+pub fn OptRecord::pack_ttl(self : OptRecord) -> UInt32 {
   let ext_rc = self.extended_rcode.to_int().reinterpret_as_uint()
   let ver = self.version.to_int().reinterpret_as_uint()
-  let do_bit : UInt = if self.do_flag { 0x00008000 } else { 0 }
+  let do_bit : UInt32 = if self.do_flag { 0x00008000 } else { 0 }
   (ext_rc << 24) | (ver << 16) | do_bit
 }
 
@@ -37,7 +37,7 @@ pub fn OptRecord::pack_ttl(self : OptRecord) -> UInt {
 /// Unpack OptRecord attributes from wire CLASS, TTL, and RDATA
 pub fn OptRecord::unpack(
   rclass : UInt16,
-  ttl : UInt,
+  ttl : UInt32,
   rdata_bytes : Bytes,
 ) -> OptRecord {
   let udp_payload_size = rclass

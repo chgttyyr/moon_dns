@@ -23,15 +23,15 @@ pub(all) enum LookupResult {
 
 pub(all) struct Zone {
   mut origin : String
-  mut default_ttl : UInt
+  mut default_ttl : UInt32
   mut soa : @types.Record?
   records : Array[@types.Record]
 } derive(@debug.Debug)
 pub fn Zone::add_record(Self, @types.Record) -> Unit
 pub fn Zone::get_soa_or_fallback(Self) -> @types.Record
 pub fn Zone::lookup(Self, String, @types.RType) -> LookupResult
-pub fn Zone::new(String, UInt) -> Self
-pub fn Zone::record_count(Self) -> Int
+pub fn Zone::new(String, UInt32) -> Self
+pub fn Zone::record_count(Self) -> Int32
 pub fn Zone::validate(Self) -> Array[String]
 
 // Type aliases

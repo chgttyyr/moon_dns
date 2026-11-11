@@ -61,7 +61,7 @@ async fn serve_authoritative(
   zone : @zone.Zone,
   host : String,
   port : UInt16,
-  max_connections : Int,
+  max_connections : Int32,
 ) -> Unit {
   let address_text = if host.contains(":") && !host.has_prefix("[") {
     "[" + host + "]:" + port.to_string()

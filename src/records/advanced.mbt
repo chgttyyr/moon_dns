@@ -114,11 +114,11 @@ pub fn encode_rdata_soa(
   writer : @bytes_io.ByteWriter,
   mname : String,
   rname : String,
-  serial : UInt,
-  refresh : UInt,
-  retry : UInt,
-  expire : UInt,
-  minimum : UInt,
+  serial : UInt32,
+  refresh : UInt32,
+  retry : UInt32,
+  expire : UInt32,
+  minimum : UInt32,
 ) -> Result[Unit, @types.DnsError] {
   let res1 = @domain.encode_domain_labels(writer, mname)
   match res1 {

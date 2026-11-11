@@ -108,7 +108,7 @@ fn chase_cname(
   zone : @zone.Zone,
   target : String,
   target_qtype : @types.RType,
-  depth : Int,
+  depth : Int32,
 ) -> Unit {
   if depth <= 0 {
     return

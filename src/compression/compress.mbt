@@ -6,7 +6,7 @@
 /// An entry in the outbound compression dictionary mapping a domain suffix to its byte offset
 pub(all) struct CompressionEntry {
   domain : String // Normalized FQDN suffix
-  offset : Int // Absolute wire offset in the message
+  offset : Int32 // Absolute wire offset in the message
 } derive(Debug, Eq)
 
 ///|
@@ -23,7 +23,7 @@ pub fn CompressionMap::new() -> CompressionMap {
 
 ///|
 /// Search for a matching suffix in the compression map using case-insensitive comparison
-pub fn CompressionMap::find(self : CompressionMap, suffix : String) -> Int? {
+pub fn CompressionMap::find(self : CompressionMap, suffix : String) -> Int32? {
   for i = 0; i < self.entries.length(); i = i + 1 {
     if @domain.domain_equal(self.entries[i].domain, suffix) {
       return Some(self.entries[i].offset)
@@ -37,7 +37,7 @@ pub fn CompressionMap::find(self : CompressionMap, suffix : String) -> Int? {
 pub fn CompressionMap::insert(
   self : CompressionMap,
   domain : String,
-  offset : Int,
+  offset : Int32,
 ) -> Unit {
   if offset <= 0x3fff {
     self.entries.push({ domain: @domain.normalize_fqdn(domain), offset, })
@@ -46,7 +46,7 @@ pub fn CompressionMap::insert(
 
 ///|
 /// Reconstruct a domain suffix starting from label index k
-fn build_suffix(labels : Array[String], start_idx : Int) -> String {
+fn build_suffix(labels : Array[String], start_idx : Int32) -> String {
   let buf = StringBuilder()
   for i = start_idx; i < labels.length(); i = i + 1 {
     buf.write_string(labels[i])

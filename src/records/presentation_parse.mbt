@@ -4,11 +4,11 @@
 
 ///|
 /// Parse one hexadecimal IPv6 group.
-fn parse_ipv6_group(text : String) -> UInt? {
+fn parse_ipv6_group(text : String) -> UInt32? {
   if text.length() == 0 || text.length() > 4 {
     return None
   }
-  let mut value : UInt = 0
+  let mut value : UInt32 = 0
   for i = 0; i < text.length(); i = i + 1 {
     let ch = text[i].to_int()
     let digit = if ch >= 48 && ch <= 57 {
@@ -27,8 +27,8 @@ fn parse_ipv6_group(text : String) -> UInt? {
 
 ///|
 /// Parse a colon-separated sequence of non-empty IPv6 groups.
-fn parse_ipv6_groups(text : String) -> Array[UInt]? {
-  let groups : Array[UInt] = []
+fn parse_ipv6_groups(text : String) -> Array[UInt32]? {
+  let groups : Array[UInt32] = []
   if text.length() == 0 {
     return Some(groups)
   }
@@ -75,7 +75,7 @@ pub fn parse_ipv6(ip_str : String) -> Result[@types.RData, @types.DnsError] {
     }
   }
 
-  let groups : Array[UInt] = []
+  let groups : Array[UInt32] = []
   if compression < 0 {
     match parse_ipv6_groups(text) {
       Some(parsed) => {

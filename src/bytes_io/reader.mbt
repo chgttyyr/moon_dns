@@ -6,7 +6,7 @@
 /// ByteReader provides safe, bounds-checked big-endian binary stream reading.
 pub(all) struct ByteReader {
   bytes : Bytes
-  mut cursor : Int
+  mut cursor : Int32
 } derive(Debug)
 
 ///|
@@ -19,7 +19,7 @@ pub fn ByteReader::new(bytes : Bytes) -> ByteReader {
 /// Create a ByteReader starting at a specific offset
 pub fn ByteReader::from_offset(
   bytes : Bytes,
-  offset : Int,
+  offset : Int32,
 ) -> Result[ByteReader, @types.DnsError] {
   if offset < 0 || offset > bytes.length() {
     return Err(
@@ -31,25 +31,25 @@ pub fn ByteReader::from_offset(
 
 ///|
 /// Number of remaining unread bytes in buffer
-pub fn ByteReader::remaining(self : ByteReader) -> Int {
+pub fn ByteReader::remaining(self : ByteReader) -> Int32 {
   self.bytes.length() - self.cursor
 }
 
 ///|
 /// Check if buffer has at least n remaining bytes
-pub fn ByteReader::has_remaining(self : ByteReader, n : Int) -> Bool {
+pub fn ByteReader::has_remaining(self : ByteReader, n : Int32) -> Bool {
   self.remaining() >= n
 }
 
 ///|
 /// Current read cursor position (0-indexed)
-pub fn ByteReader::position(self : ByteReader) -> Int {
+pub fn ByteReader::position(self : ByteReader) -> Int32 {
   self.cursor
 }
 
 ///|
 /// Total length of the underlying bytes
-pub fn ByteReader::total_length(self : ByteReader) -> Int {
+pub fn ByteReader::total_length(self : ByteReader) -> Int32 {
   self.bytes.length()
 }
 
@@ -57,7 +57,7 @@ pub fn ByteReader::total_length(self : ByteReader) -> Int {
 /// Reposition the read cursor safely
 pub fn ByteReader::set_position(
   self : ByteReader,
-  pos : Int,
+  pos : Int32,
 ) -> Result[Unit, @types.DnsError] {
   if pos < 0 || pos > self.bytes.length() {
     return Err(
@@ -72,7 +72,7 @@ pub fn ByteReader::set_position(
 /// Advance cursor by n bytes without reading
 pub fn ByteReader::skip(
   self : ByteReader,
-  n : Int,
+  n : Int32,
 ) -> Result[Unit, @types.DnsError] {
   if n < 0 || self.cursor + n > self.bytes.length() {
     return Err(
@@ -134,7 +134,7 @@ pub fn ByteReader::read_uint16(
 /// Read a big-endian 32-bit unsigned integer and advance cursor by 4
 pub fn ByteReader::read_uint32(
   self : ByteReader,
-) -> Result[UInt, @types.DnsError] {
+) -> Result[UInt32, @types.DnsError] {
   if self.cursor + 4 > self.bytes.length() {
     return Err(
       @types.BufferUnderflow(
@@ -155,7 +155,7 @@ pub fn ByteReader::read_uint32(
 /// Read a fixed number of bytes into a new Bytes instance
 pub fn ByteReader::read_bytes(
   self : ByteReader,
-  len : Int,
+  len : Int32,
 ) -> Result[Bytes, @types.DnsError] {
   if len < 0 || self.cursor + len > self.bytes.length() {
     return Err(
@@ -176,8 +176,8 @@ pub fn ByteReader::read_bytes(
 /// Extract a subslice without moving the primary cursor
 pub fn ByteReader::sub_slice(
   self : ByteReader,
-  start : Int,
-  len : Int,
+  start : Int32,
+  len : Int32,
 ) -> Result[Bytes, @types.DnsError] {
   if start < 0 || len < 0 || start + len > self.bytes.length() {
     return Err(
